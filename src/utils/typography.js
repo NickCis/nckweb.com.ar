@@ -1,13 +1,20 @@
 import Typography from "typography"
 import Wordpress2016 from "typography-theme-wordpress-2016"
+import './global.css';
+import 'prismjs/themes/prism.css';
 
-Wordpress2016.overrideThemeStyles = () => {
-  return {
-    "a.gatsby-resp-image-link": {
-      boxShadow: `none`,
-    },
-  }
-}
+Wordpress2016.overrideThemeStyles = () => ({
+  a: {
+    color: '#f47c48'
+  },
+  h1: {
+    'text-transform': 'uppercase',
+    'font-weight': '300',
+  },
+  "a.gatsby-resp-image-link": {
+    boxShadow: `none`,
+  },
+});
 
 delete Wordpress2016.googleFonts
 

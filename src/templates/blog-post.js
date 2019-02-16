@@ -14,7 +14,12 @@ class BlogPostTemplate extends React.Component {
 
     return (
       <Layout location={this.props.location} title={siteTitle}>
-        <SEO title={post.frontmatter.title} description={post.excerpt} />
+        <SEO
+          title={post.frontmatter.title}
+          description={post.excerpt}
+          keywords={post.frontmatter.tags}
+          canonical={post.frontmatter.canonical_url}
+        />
         <h1>{post.frontmatter.title}</h1>
         <p
           style={{
@@ -25,6 +30,8 @@ class BlogPostTemplate extends React.Component {
           }}
         >
           {post.frontmatter.date}
+          {' '}&bull;{' '}
+          {post.timeToRead} min read
         </p>
         <div dangerouslySetInnerHTML={{ __html: post.html }} />
         <hr
@@ -76,10 +83,13 @@ export const pageQuery = graphql`
     markdownRemark(fields: { slug: { eq: $slug } }) {
       id
       excerpt(pruneLength: 160)
+      timeToRead
       html
       frontmatter {
         title
         date(formatString: "MMMM DD, YYYY")
+        tags
+        canonical_url
       }
     }
   }
