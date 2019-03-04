@@ -7,7 +7,7 @@ fields:
   name: title
   label: Title
   required: true
-- type: field_group_list
+- type: tag_list
   name: description
   label: Description
   required: true
