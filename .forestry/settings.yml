@@ -18,7 +18,7 @@ front_matter_path: ''
 use_front_matter_path: false
 file_template: ":filename:"
 build:
-  preview_command: gatsby build
+  preview_command: yarn forestry:preview
   publish_command: gatsby build
   preview_output_directory: public
   output_directory: public
