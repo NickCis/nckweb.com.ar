@@ -9,3 +9,4 @@ fields:
 - type: textarea
   name: title
   label: Title
+  required: true
