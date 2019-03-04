@@ -6,6 +6,6 @@ fields:
 - type: boolean
   name: published
   label: Published
-- type: field_group_list
+- type: tag_list
   name: title
   label: Title
