@@ -7,7 +7,7 @@ fields:
   name: title
   label: Title
   required: true
-- type: tag_list
+- type: file
   name: description
   label: Description
   required: true
