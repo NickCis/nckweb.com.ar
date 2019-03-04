@@ -3,10 +3,14 @@ label: Post
 hide_body: false
 is_partial: false
 fields:
-- type: boolean
-  name: published
-  label: Published
 - type: textarea
   name: title
   label: Title
   required: true
+- type: field_group_list
+  name: description
+  label: Description
+  required: true
+- type: boolean
+  name: published
+  label: Published
