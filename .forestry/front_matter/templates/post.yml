@@ -20,7 +20,7 @@ fields:
   label: Description
   config:
     required: true
-- type: tag_list
+- type: text
   name: tags
   label: Tags
 - type: boolean
