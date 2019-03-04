@@ -3,26 +3,7 @@ label: Post
 hide_body: false
 is_partial: false
 fields:
-- type: textarea
-  name: title
-  label: Title
-  config:
-    required: true
-- type: datetime
-  name: date
-  label: Date
-  config:
-    date_format: DD/MM/YYYY
-    time_format: HH:mm ZZ
-    required: true
-- type: textarea
-  name: description
-  label: Description
-  config:
-    required: true
-- type: tag_list
-  name: tags
-  label: Tags
 - type: boolean
   name: published
   label: Published
+  default: true
