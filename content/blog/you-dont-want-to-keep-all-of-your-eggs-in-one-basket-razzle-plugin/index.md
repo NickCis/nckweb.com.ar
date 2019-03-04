@@ -168,3 +168,104 @@ import Styles from 'style-loader!css-loader?modules!./styles.css';
 ```
 
 Data is piped using an exclamation mark ( `!`) and the file is always at last.
+
+## Web bundle
+
+As far as configuration for web bundle is concerned, only two things has to be done:
+
+1. Generate one bundle per device
+2. Replace modules with device specific ones
+
+To achieve the first objective, it is going to be abuse the fact that the modified configuration is passed directly to webpack. The returned object will be replaced by an array. Each item of the array is going to be the configuration for each device.
+
+As regards the second, D_eviceModuleReplacementPlugin_ will do the trick. This plugin will be added to the original config.
+
+```js
+function web(config, { devices }, webpack) {
+  const clients = devices.map(device => ({
+    ...config,
+    name: `${device}.client`,
+    entry: {
+      [`${device}.client`]: config.entry.client,
+    },
+    output: {
+      ...config.output,
+      filename: config.output.filename.replace('bundle', `${device}.bundle`),
+      chunkFilename: config.output.chunkFilename.replace('[name]', `${device}.[name]`),
+    },
+    plugins: [
+      ...config.plugins,
+      new webpack.DefinePlugin({
+        'process.device': JSON.stringify(device),
+      }),
+      new DeviceModuleReplacementPlugin(path.resolve('./src')),
+    ],
+  }));
+
+  return clients;
+}
+```
+
+After some tests, I’ve realized that dev server stopped working as expected. I got some _CORS_ errors on the browser’s console and the bundle failed to load:
+
+IMAGE
+
+To understand a bit what was happening, I had to pay special attention to the [_How razzle works (the secret sauce_](https://github.com/jaredpalmer/razzle#how-razzle-works-the-secret-sauce)_)_ part of the readme:
+
+> In development mode (`razzle start`), Razzle bundles both your client and server code using two different webpack instances running with Hot Module Replacement in parallel. While your server is bundled and run on whatever port you specify in `src/index.js` (`3000` is the default), the client bundle (i.e. entry point at `src/client.js`) is served via `webpack-dev-server` on a different port (`3001` by default) with its `publicPath` explicitly set to `localhost:3001` (and not `/` like many other setups do). Then the server's html template just points to the absolute url of the client JS: `localhost:3001/static/js/client.js`. Since both webpack instances watch the same files, whenever you make edits, they hot reload at _exactly_ the same time. Best of all, because they use the same code, the same webpack loaders, and the same babel transformations, you never run into a React checksum mismatch error.
+
+My best bet is that I was somehow overriding dev server configuration. Checking [razzle’s start script](https://github.com/jaredpalmer/razzle/blob/master/packages/razzle/scripts/start.js#L72), I came across that the `devServer` property of webpack’s configuration was being used:
+
+```js
+  // Create a new instance of Webpack-dev-server for our client assets.
+  // This will actually run on a different port than the users app.
+  const clientDevServer = new devServer(clientCompiler, clientConfig.devServer);
+
+  // Start Webpack-dev-server
+  clientDevServer.listen(
+    (process.env.PORT && parseInt(process.env.PORT) + 1) || razzle.port || 3001,
+    err => {
+      if (err) {
+        logger.error(err);
+      }
+    }
+  );
+```
+
+Just setting that property to the returned array fixed the problem:
+
+```js
+function web(config, { devices }, webpack) {
+  const clients = devices.map(device => ({
+    ...config,
+    name: `${device}.client`,
+    entry: {
+      [`${device}.client`]: config.entry.client,
+    },
+    output: {
+      ...config.output,
+      filename: config.output.filename.replace('bundle', `${device}.bundle`),
+      chunkFilename: config.output.chunkFilename.replace('[name]', `${device}.[name]`),
+    },
+    plugins: [
+      ...config.plugins,
+      new webpack.DefinePlugin({
+        'process.device': JSON.stringify(device),
+      }),
+      new DeviceModuleReplacementPlugin(path.resolve('./src')),
+    ],
+  }));
+
+  clients.devServer = config.devServer;
+
+  return clients;
+}
+```
+
+## Node bundle (or must i say bundles?)
+
+DevServer
+
+After finishing, I realized that dev server was
+
+[https://github.com/NickCis/razzle-plugin-device-specific-bundles](https://github.com/NickCis/razzle-plugin-device-specific-bundles "https://github.com/NickCis/razzle-plugin-device-specific-bundles")
