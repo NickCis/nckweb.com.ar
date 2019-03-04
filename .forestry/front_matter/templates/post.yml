@@ -6,6 +6,6 @@ fields:
 - type: boolean
   name: published
   label: Published
-- type: file
+- type: datetime
   name: title
   label: Title
