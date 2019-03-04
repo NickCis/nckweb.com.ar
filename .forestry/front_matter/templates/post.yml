@@ -30,3 +30,6 @@ fields:
 - type: text
   name: canonical_url
   label: Canonical url
+pages:
+- content/blog/you-dont-want-to-keep-all-of-your-eggs-in-one-basket-razzle-plugin/you-don-t-want-to-keep-all-of-your-eggs-in-one-basket-razzle-plugin
+  -ii.md
