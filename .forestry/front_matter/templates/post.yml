@@ -6,6 +6,6 @@ fields:
 - type: boolean
   name: published
   label: Published
-- type: datetime
+- type: textarea
   name: title
   label: Title
