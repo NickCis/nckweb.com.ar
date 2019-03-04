@@ -8,8 +8,10 @@ fields:
   label: Title
   required: true
 - type: datetime
-  name: description
-  label: Description
+  name: date
+  label: Date
+  date_format: DD/MM/YYYY
+  time_format: HH:mm ZZ
   required: true
 - type: boolean
   name: published
