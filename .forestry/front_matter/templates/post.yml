@@ -7,7 +7,7 @@ fields:
   name: title
   label: Title
   required: true
-- type: file
+- type: datetime
   name: description
   label: Description
   required: true
