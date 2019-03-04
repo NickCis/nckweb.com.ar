@@ -30,5 +30,3 @@ fields:
 - type: text
   name: canonical_url
   label: Canonical url
-  config:
-    required: true
