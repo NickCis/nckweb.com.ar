@@ -15,9 +15,9 @@ fields:
     date_format: DD/MM/YYYY
     time_format: HH:mm ZZ
     required: true
-- type: boolean
-  name: published
-  label: Published
+- type: textarea
+  name: description
+  label: Description
 - type: boolean
   name: published
   label: Published
