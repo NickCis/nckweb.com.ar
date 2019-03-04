@@ -208,7 +208,7 @@ function web(config, { devices }, webpack) {
 
 After some tests, I’ve realized that dev server stopped working as expected. I got some _CORS_ errors on the browser’s console and the bundle failed to load:
 
-IMAGE
+![Browser's dev console errors while using dev server](./browser-console-error.png)
 
 To understand a bit what was happening, I had to pay special attention to the [_How razzle works (the secret sauce_](https://github.com/jaredpalmer/razzle#how-razzle-works-the-secret-sauce)_)_ part of the readme:
 
