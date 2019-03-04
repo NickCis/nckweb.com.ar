@@ -282,7 +282,7 @@ exports.wrapPageElement = ({ element, props }, pluginOptions) => {
 
 ## What about client side rendering?
 
-In order to be consistent, the plugin should also add the `Helmet` component on the client side. Although, if I don't add it, I won't trigger any React hydratation issue (the DOM tree that react hydratates is the same with or without this default canonical Helmet compoent), the canonical link is being removed when the client side react runs.
+In order to be consistent, the plugin should also add the `Helmet` component on the client side. Although, if I don't add it, I won't trigger any React hydratation issue (the DOM tree that react hydratates is the same with or without this default canonical Helmet component), the canonical link is being removed when the client side react runs.
 
 In addition, if you check `gatsby-plugin-canonical-urls`, you'll notice that it also implement [`gatsby-browser`](https://github.com/gatsbyjs/gatsby/blob/master/packages/gatsby-plugin-canonical-urls/src/gatsby-browser.js):
 
@@ -304,16 +304,10 @@ exports.onRouteUpdate = ({ location }) => {
 }
 ```
 
-Luckily, gatsby's browser APi implements the [`wrapPageElement` method](https://www.gatsbyjs.org/docs/browser-apis/#wrapPageElement). So fxing this client side issues is just exposing the same method under the browser's api.
+Luckily, gatsby's browser api implements the [`wrapPageElement` method](https://www.gatsbyjs.org/docs/browser-apis/#wrapPageElement). So fixing this client side issues is just exposing the same method under the browser's api.
 
 ---
 
 So far the experience implementing a Gatbsy blog has been great!. The API is very simple, so if the long list of plugins doesn't suit you, you can easily implement yours.
 
-Comunity arround the project is very active, I even got a gift swag for fixing a [little doc issue](https://github.com/gatsbyjs/gatsby/pull/11844) while doing this post!
-
-
-
-
-
-
+Community around the project is very active, I even got a gift swag for fixing a [little doc issue](https://github.com/gatsbyjs/gatsby/pull/11844) while doing this post!

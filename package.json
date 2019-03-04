@@ -48,7 +48,7 @@
     "develop": "gatsby develop",
     "start": "yarn develop",
     "serve": "gatsby serve",
-    "deploy": "yarn now && yarn alias"
+    "deploy": "yarn now && yarn now alias"
   },
   "devDependencies": {
     "now": "^14.0.0"
