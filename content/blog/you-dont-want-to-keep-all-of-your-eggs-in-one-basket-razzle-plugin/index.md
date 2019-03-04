@@ -1,5 +1,5 @@
 ---
-published: true
+published: false
 title: 'You don''t want to keep all of your eggs in one basket: razzle plugin (II)'
 date: 2019-03-04T03:00:00+00:00
 description: Reducing boilerplate of specific device bundles implementing a custom
