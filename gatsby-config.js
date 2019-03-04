@@ -9,6 +9,7 @@ module.exports = {
       github: `nickcis`,
       medium: `nickcis`
     },
+    siteUrl: `https://nckweb.com.ar`,
   },
   plugins: [
     {
@@ -82,5 +83,6 @@ module.exports = {
         siteUrl: 'https://nckweb.com.ar',
       },
     },
+    `gatsby-plugin-sitemap`,
   ],
 }
