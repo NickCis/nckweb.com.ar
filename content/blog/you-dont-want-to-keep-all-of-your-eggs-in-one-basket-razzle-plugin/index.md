@@ -114,3 +114,57 @@ class NormalModuleReplacementPlugin {
 To summarize things, imported files are called modules. Webpack has a normal module factory that is encharged of creating the entity that represents that module. Plugins can hook to certain events of this factory in order to change custom behavior.
 
 The idea is to hook up to the `beforeResolve` and `afterResolve` events in order to modify the requested module, just as _nomal module replacement plugin_ does. But, as this is a custom plugin, it has access to webpack’s internal resolver which will be used to check if the device specific file (_aka module)_ exists.
+
+```js
+class DeviceModuleReplacementPlugin {
+  resolveByDevice(nmf, result, callback = () => {}) {
+    const resolver = nmf.getResolver('normal', result.resolveOptions);
+    const request = result.request.split('!');
+    const { root, dir, name, ext } = path.parse(request.pop());
+    const contextInfo = result.contextInfo || result.resourceResolveData.context;
+    const device = contextInfo.compiler.split('.')[0];
+    const file = path.format({
+      root,
+      dir,
+      name,
+      ext: `.${device}${ext}`
+    });
+
+    resolver.resolve(contextInfo, result.context, file, {}, err => {
+      if (!err) {
+        request.push(file);
+        result.request = request.join('!');
+      }
+
+      callback();
+    });
+  }
+
+  apply(compiler) {
+    compiler.hooks.normalModuleFactory.tap(
+      'DeviceModuleReplacementPlugin',
+      nmf => {
+        nmf.hooks.beforeResolve.tapAsync('DeviceModuleReplacementPlugin', (result, callback) => {
+          if (!result) return callback();
+          if (!result.context.startsWith(this.folder)) return callback();
+          this.resolveByDevice(nmf, result, callback);
+        });
+
+        nmf.hooks.afterResolve.tapAsync('DeviceModuleReplacementPlugin', (result, callback) => {
+          if (!result) return callback();
+          if (!result.context.startsWith(this.folder)) return callback();
+          this.resolveByDevice(nmf, result, callback);
+        });
+      }
+    );
+  }
+}
+```
+
+As a side note, remember that Webpack allows to declare [loaders using an inline syntax](https://webpack.js.org/concepts/loaders/#inline). This means that a _resource_ might be something like this:
+
+```js
+import Styles from 'style-loader!css-loader?modules!./styles.css';
+```
+
+Data is piped using an exclamation mark ( `!`) and the file is always at last.
