@@ -15,7 +15,7 @@ fields:
     date_format: DD/MM/YYYY
     time_format: HH:mm ZZ
     required: true
-- type: 
+- type: boolean
   name: published
   label: Published
 - type: boolean
