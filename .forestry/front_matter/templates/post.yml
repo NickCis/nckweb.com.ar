@@ -2,4 +2,7 @@
 label: Post
 hide_body: false
 is_partial: false
-fields: []
+fields:
+- type: boolean
+  name: published
+  label: Published
