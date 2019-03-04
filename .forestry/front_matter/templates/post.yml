@@ -27,3 +27,8 @@ fields:
   name: published
   label: Published
   default: true
+- type: text
+  name: canonical_url
+  label: Canonical url
+  config:
+    required: true
