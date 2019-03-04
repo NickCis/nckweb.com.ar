@@ -7,7 +7,7 @@ sections:
 - type: directory
   path: content/blog
   label: Blog
-  create: documents
+  create: all
   match: "**/*"
   new_doc_ext: md
   templates:
