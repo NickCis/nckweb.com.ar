@@ -57,3 +57,60 @@ module.exports = function myRazzlePlugin(config, env, webpack, options) {
   return webpackConfig;
 };
 ```
+
+This function is called for each configuration (web and node) and allows you to modify and return a new configuration object.
+
+Keep in mind that what returns the last plugin will be [thrown to webpack](https://github.com/jaredpalmer/razzle/blob/master/packages/razzle/scripts/build.js#L90). I will abuse of this, webpack’s config object will be replaced with an array in order to use the _multicompiler_ feature.
+
+## DeviceModuleReplacementPlugin
+
+The magic behind the device module implementation is resolving to a device specific module, instead of the required one. As it was explained in the first post, the idea is that if a file with the device extension ( `<filename>.<device>.js`) exists, it will be used instead of the regular file ( `<filename>.js`).
+
+On the first post, [webpack’s NormalModuleReplacement](https://webpack.js.org/plugins/normal-module-replacement-plugin/) plugin was used, in order to clean things up, a new webpack plugin was developed.
+
+I won’t enter into details of how webpack internally work as this was mostly inspired [by NormalModuleReplacement code](//%20https://github.com/webpack/webpack/blob/master/lib/NormalModuleReplacementPlugin.js):
+
+```js
+class NormalModuleReplacementPlugin {
+    // ...
+  
+	apply(compiler) {
+		const resourceRegExp = this.resourceRegExp;
+		const newResource = this.newResource;
+		compiler.hooks.normalModuleFactory.tap(
+			"NormalModuleReplacementPlugin",
+			nmf => {
+				nmf.hooks.beforeResolve.tap("NormalModuleReplacementPlugin", result => {
+					if (!result) return;
+					if (resourceRegExp.test(result.request)) {
+						if (typeof newResource === "function") {
+							newResource(result);
+						} else {
+							result.request = newResource;
+						}
+					}
+					return result;
+				});
+				nmf.hooks.afterResolve.tap("NormalModuleReplacementPlugin", result => {
+					if (!result) return;
+					if (resourceRegExp.test(result.resource)) {
+						if (typeof newResource === "function") {
+							newResource(result);
+						} else {
+							result.resource = path.resolve(
+								path.dirname(result.resource),
+								newResource
+							);
+						}
+					}
+					return result;
+				});
+			}
+		);
+	}
+}
+```
+
+To summarize things, imported files are called modules. Webpack has a normal module factory that is encharged of creating the entity that represents that module. Plugins can hook to certain events of this factory in order to change custom behavior.
+
+The idea is to hook up to the `beforeResolve` and `afterResolve` events in order to modify the requested module, just as _nomal module replacement plugin_ does. But, as this is a custom plugin, it has access to webpack’s internal resolver which will be used to check if the device specific file (_aka module)_ exists.
