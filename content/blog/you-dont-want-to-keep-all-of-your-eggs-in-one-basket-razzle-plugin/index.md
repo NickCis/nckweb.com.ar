@@ -10,7 +10,9 @@ canonical_url: ''
 ---
 This is a round up of the first talk I did called [_“No metas todo en la misma bolsa: generando bundles por dispositivo”_](https://www.meetup.com/es/React-js-en-Buenos-Aires/events/252948807/) (which could be translated to the title of this article).
 
-![Defining specific characteristics per device without developing a platform for each one.](./2018-07-reactjs-no-metas-todo-en-la-misma-bolsa.png)**This is the second post in a series** where I explain how to encapsulate the specific device logic into a Razzle plugin:
+[![Defining specific characteristics per device without developing a platform for each one.](./2018-07-reactjs-no-metas-todo-en-la-misma-bolsa.png)](https://drive.google.com/file/d/1vnsMVslNssKV3W3Mv_i2ZwCa5Gh9GZp3/view)
+
+**This is the second post in a series** where I explain how to encapsulate the specific device logic into a Razzle plugin:
 
 * [Building bundles per device](https://medium.com/@nickcis/you-dont-want-to-keep-all-of-your-eggs-in-one-basket-building-bundles-per-device-887e21772453)
 * _Avoiding boilerplate: Developing a razzle plugin (this post)_
