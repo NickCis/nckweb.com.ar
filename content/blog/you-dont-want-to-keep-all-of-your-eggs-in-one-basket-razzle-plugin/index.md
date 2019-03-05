@@ -179,7 +179,7 @@ As far as configuration for web bundle is concerned, only two things has to be d
 
 To achieve the first objective, it is going to be abuse the fact that the modified configuration is passed directly to webpack. The returned object will be replaced by an array. Each item of the array is going to be the configuration for each device.
 
-As regards the second, D_eviceModuleReplacementPlugin_ will do the trick. This plugin will be added to the original config.
+As regards the second, _DeviceModuleReplacementPlugin_ will do the trick. This plugin will be added to the original config.
 
 ```js
 function web(config, { devices }, webpack) {
