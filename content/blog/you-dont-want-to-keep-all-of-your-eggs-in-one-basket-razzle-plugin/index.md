@@ -116,7 +116,7 @@ class NormalModuleReplacementPlugin {
 
 To summarize things, imported files are called modules. Webpack has a normal module factory that is encharged of creating the entity that represents that module. Plugins can hook to certain events of this factory in order to change custom behavior.
 
-The idea is to hook up to the `beforeResolve` and `afterResolve` events in order to modify the requested module, just as _nomal module replacement plugin_ does. But, as this is a custom plugin, it has access to webpack’s internal resolver which will be used to check if the device specific file (_aka module)_ exists.
+The idea is to hook up to the `beforeResolve` and `afterResolve` events in order to modify the requested module, just as _normal module replacement plugin_ does. But, as this is a custom plugin, it has access to webpack’s internal resolver which will be used to check if the device specific file (_aka module)_ exists.
 
 ```js
 class DeviceModuleReplacementPlugin {
@@ -171,6 +171,8 @@ import Styles from 'style-loader!css-loader?modules!./styles.css';
 ```
 
 Data is piped using an exclamation mark ( `!`) and the file is always at last.
+
+Another note, the device name can be got from the compilers name (`contextInfo.compiler.split('.')[0]`), as a convetion, the compiler name will be set to `${device}.${target}` (_taget_ is web or node).
 
 ## Web bundle
 
