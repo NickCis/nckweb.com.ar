@@ -2,6 +2,13 @@
   "version": 2,
   "routes": [
     {
+      "src": "/sailing-code(/.*|$)",
+      "status": 301,
+      "headers": {
+        "location": "https://nickcis.github.io/sailing-code$1"
+      }
+    },
+    {
       "src": "/static/(.*)",
       "dest": "/static/$1",
       "headers": { "cache-control": "public,max-age=31536000,immutable" }
