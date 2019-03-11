@@ -172,7 +172,7 @@ import Styles from 'style-loader!css-loader?modules!./styles.css';
 
 Data is piped using an exclamation mark ( `!`) and the file is always at last.
 
-Another note, the device name can be got from the compilers name (`contextInfo.compiler.split('.')[0]`), as a convetion, the compiler name will be set to `${device}.${target}` (_taget_ is web or node).
+Another note, the device name can be got from the compilers name (`contextInfo.compiler.split('.')[0]`), as a convention, the compiler name will be set to `${device}.${target}` (_target_ is web or node).
 
 ## Web bundle
 
@@ -181,7 +181,7 @@ As far as configuration for web bundle is concerned, only two things has to be d
 1. Generate one bundle per device
 2. Replace modules with device specific ones
 
-To achieve the first objective, it is going to be abuse the fact that the modified configuration is passed directly to webpack. The returned object will be replaced by an array. Each item of the array is going to be the configuration for each device.
+To achieve the first objective, it is going to be abused the fact that the modified configuration is passed directly to webpack. The returned object will be replaced by an array. Each item of the array is going to be the configuration for each device.
 
 As regards the second, _DeviceModuleReplacementPlugin_ will do the trick. This plugin will be added to the original config.
 
@@ -269,8 +269,28 @@ function web(config, { devices }, webpack) {
 
 ## Node bundle (or must i say bundles?)
 
-DevServer
+The node part is a bit trickier. Just generating two bundles won't work, as it is needed an extra one that does the server's listening and device detection (to execute the device specific rendering and bundle serving).
 
-After finishing, I realized that dev server was
+### Production build
+
+I will start with production build, since it's simpler (I'll explain later why).
+
+Tasks to be done:
+
+* Generate server bundle
+* Generate bundles per device
+* Develop a way to import the device specific bundles in the main server one
+
+Well, the first task is the easiest one. No work has to be done, as it's the default bundle that razzle generates. So, our `node` function will start being something like this:
+
+```js
+function node(config) {
+  return config;
+}
+```
+
+### Dev
+
+In addition, on development, things got a little bit harder as razzle has _hot module replacement_.
 
 [https://github.com/NickCis/razzle-plugin-device-specific-bundles](https://github.com/NickCis/razzle-plugin-device-specific-bundles "https://github.com/NickCis/razzle-plugin-device-specific-bundles")
