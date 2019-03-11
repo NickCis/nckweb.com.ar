@@ -269,7 +269,7 @@ function web(config, { devices }, webpack) {
 
 ## Node bundle (or must i say bundles?)
 
-The node part is a bit trickier. Just generating two bundles won't work, as it is needed an extra one that does the server's listening and device detection (to execute the device specific rendering and bundle serving).
+The node part is a bit trickier. Just generating a bundle per divce won't work, as it is needed an extra one that does the server's listening and device detection (to execute the device specific rendering and bundle serving).
 
 ### Production build
 
@@ -286,6 +286,121 @@ Well, the first task is the easiest one. No work has to be done, as it's the def
 ```js
 function node(config) {
   return config;
+}
+```
+
+For the second objective, we can't just add the _DeviceModuleReplacementPlugin,_ as this will generate a duplication of common server stuff (server listening, device detection, etc). In order to perform device separation, all the code that could be different per device will live on another [entry point](https://webpack.js.org/concepts/entry-points/). 
+
+    src
+    ├── index.js
+    ├── README.md
+    ├── client
+    │   └── ...
+    └── ssr.js
+
+The code that's in the main server's entry point (ie: `src/index.js`) won't be changed per device:
+
+    import http from 'http';
+    import express from 'express';
+    
+    const server = http.createServer(
+      express()
+        .disable('x-powered-by')
+        .use(express.static(process.env.RAZZLE_PUBLIC_DIR))
+        .get('/*', (req, res) => {
+          res.status(200).send('To be rendered');
+        })
+    );
+    
+    server.listen(process.env.PORT || 3000);
+
+While the server side rendering entry point (ie: `src/ssr.js`) will:
+
+    import App from './client/App';
+    import React from 'react';
+    import { StaticRouter } from 'react-router-dom';
+    import { renderToString } from 'react-dom/server';
+    
+    const manifest = require(process.env.RAZZLE_ASSETS_MANIFEST);
+    const assets = Object.entries(manifest)
+      .reduce(
+        (assets, [key, value]) => {
+          const [device, k] = key.split('.');
+          if (device === process.device)
+            assets[k] = value;
+          return assets;
+        },
+        {}
+      );
+    
+    const render = (req, res) => {
+      const context = {};
+      const markup = renderToString(
+        <StaticRouter context={context} location={req.url}>
+          <App />
+        </StaticRouter>
+      );
+    
+      if (context.url) {
+        res.redirect(context.url);
+      } else {
+        res.status(200).send(
+          `<!doctype html>
+      <html lang="">
+      <head>
+          <meta httpEquiv="X-UA-Compatible" content="IE=edge" />
+          <meta charSet='utf-8' />
+          <title>Welcome to Razzle: ${process.device}</title>
+          <meta name="viewport" content="width=device-width, initial-scale=1">
+          ${assets.client.css
+            ? `<link rel="stylesheet" href="${assets.client.css}">`
+            : ''}
+          ${process.env.NODE_ENV === 'production'
+            ? `<script src="${assets.client.js}" defer></script>`
+            : `<script src="${assets.client.js}" defer crossorigin></script>`}
+      </head>
+      <body>
+          <div id="root">${markup}</div>
+      </body>
+      </html>`
+        );
+      }
+    };
+    
+    export default render;
+
+As far as device select, the same approach of the the same approach of the web bundles will be used, _DeviceModuleReplacementPlugin_:
+
+```js
+function node(config, { devices, entry }) {
+  const bundles = devices.map(device => {
+    const filename = `${device}.server.js`;
+    return {
+      filename,
+      device,
+      name: `${device}.server`,
+      path: path.join(config.output.path, filename),
+    }
+  });
+  
+  return [
+    config,
+    bundles.map(({ device, name, filename }) => ({
+      ...config,
+      entry,
+      output: {
+        ...config.output,
+        filename,
+      },
+      plugins: [
+      	...config.plugins,
+        new webpack.DefinePlugin({
+          'process.device': JSON.stringify(device),
+        }),
+        new DeviceModuleReplacementPlugin(path.resolve('./src')),
+      ]
+    })),
+  ];
 }
 ```
 
