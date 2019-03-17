@@ -29,4 +29,5 @@ fields:
   name: canonical_url
   label: Canonical url
 pages:
+- content/blog/android-byod-staying-connected-without-losing-phone-control/android-byod-staying-connected-without-losing-phone-control.md
 - content/blog/you-dont-want-to-keep-all-of-your-eggs-in-one-basket-razzle-plugin/index.md
