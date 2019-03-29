@@ -1,9 +1,9 @@
 ---
-date: 2019-03-05T16:42:19+00:00
+date: 2019-03-29T09:21:19-03:00
 title: 'Android BYOD: Staying connected without losing phone control'
-description: ''
+description: How to get the calendar synced with a serverless approach.
 tags: byod, google apps device policy, calendar, ical, serverless, zeit now, micro
-published: false
+published: true
 canonical_url: ''
 
 ---
