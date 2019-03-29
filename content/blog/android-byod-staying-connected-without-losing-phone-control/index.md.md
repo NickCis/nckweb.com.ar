@@ -13,7 +13,7 @@ According to google's help:
 
 > Depending on how your administrator manages Android devices in your organization, you might need to install the [Google Apps Device Policy app](https://play.google.com/store/apps/details?id=com.google.android.apps.enterprise.dmagent) on your device. The app enforces your organization’s security policies on your device to protect corporate data and make it more secure. If you don’t install the app, but your admin requires it, you can’t access G Suite data on your device, including work email, calendar, and contacts.
 
-As far as the initial description is concerned, the app wasn't something I could complain of, but after reading what the admin could do with the app, it really got on my nerves: 
+As far as the initial description is concerned, the app wasn't something I could complain of, but after reading what the admin could do with the app, it really got on my nerves:
 
 > Some organizations require their users to install the Google Apps Device Policy app on their device. If you don't install the app, your mail, calendar and contacts may not sync with your device. Contact your G Suite admin for more details.
 >
@@ -37,6 +37,10 @@ What?, Why on Earth would I allow the company I work for to audit the applicatio
 
 ## Unsynced way of working
 
-When the policy was enforced, mail, calendar and files stopped syncing on my personal device. At first, I thought that well, I'd never used google drive on the device, I often ignored mails but I would really suffer from not having the calendar. I'm a bit forgetful, so being able to have notifications about meetings and being able to check my daily schedule while commuting really helped me. 
+When the policy was enforced, mail, calendar and files stopped syncing on my personal device. At first, I thought that well, I'd never used google drive on the device, I often ignored mails but I would really suffer from not having the calendar. I'm a bit forgetful, so being able to have notifications about meetings and being able to check my daily schedule while commuting really helped me.
 
 My first try what just sharing my calendar to my personal account, this worked, but after some days, it stopped syncing. Sharing non public events was also forbidden to accounts that aren't from the organization. Then, I remember that Google allows to export calendars using a [Private Address](https://support.google.com/calendar/answer/37648?hl=en), but, as I couldn't find it, I concluded that it wasn't allowed.
+
+It makes sense enforcing protection over drive and email, but, I really couldn't understand why I wasn't allowed to have a read-only version of my work calendar on my phone, particularly when I'm allow to have slack.
+
+## Developers, developers, developers
