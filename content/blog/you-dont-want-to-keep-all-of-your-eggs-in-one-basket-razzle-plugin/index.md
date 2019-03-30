@@ -176,7 +176,7 @@ Another note, the device name can be got from the compilers name (`contextInfo.c
 
 ## Web bundle
 
-As far as configuration for web bundle is concerned, only two things has to be done:
+As far as configuration for web bundle is concerned, only two things have to be done:
 
 1. Generate one bundle per device
 2. Replace modules with device specific ones
@@ -269,7 +269,7 @@ function web(config, { devices }, webpack) {
 
 ## Node bundle (or must i say bundles?)
 
-The node part is a bit trickier. Just generating a bundle per divce won't work, as it is needed an extra one that does the server's listening and device detection (to execute the device specific rendering and bundle serving).
+The node part is a bit trickier. Just generating a bundle per device won't work, as it is needed an extra one that does the server's listening and device detection (to execute the device specific rendering and bundle serving).
 
 ### Production build
 
@@ -289,7 +289,7 @@ function node(config) {
 }
 ```
 
-For the second objective, we can't just add the _DeviceModuleReplacementPlugin,_ as this will generate a duplication of common server stuff (server listening, device detection, etc). In order to perform device separation, all the code that could be different per device will live on another [entry point](https://webpack.js.org/concepts/entry-points/). 
+For the second objective, we can't just add the _DeviceModuleReplacementPlugin,_ as this will generate a duplication of common server stuff (server listening, device detection, etc). In order to perform device separation, all the code that could be different per device will live on another [entry point](https://webpack.js.org/concepts/entry-points/).
 
     src
     ├── index.js
@@ -369,7 +369,7 @@ While the server side rendering entry point (ie: `src/ssr.js`) will:
     
     export default render;
 
-As far as device select, the same approach of the the same approach of the web bundles will be used, _DeviceModuleReplacementPlugin_:
+As far as device select, the same approach of the web bundles will be used, _DeviceModuleReplacementPlugin_:
 
 ```js
 function node(config, { devices, entry }) {
@@ -403,6 +403,8 @@ function node(config, { devices, entry }) {
   ];
 }
 ```
+
+**Note:** In order to use `process.device`  to get the device, I've [webpack's DefinePlugin](https://webpack.js.org/plugins/define-plugin/) to set that variable.
 
 ### Dev
 
