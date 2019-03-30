@@ -300,74 +300,78 @@ For the second objective, we can't just add the _DeviceModuleReplacementPlugin,_
 
 The code that's in the main server's entry point (ie: `src/index.js`) won't be changed per device:
 
-    import http from 'http';
-    import express from 'express';
+```js
+import http from 'http';
+import express from 'express';
+
+const server = http.createServer(
+  express()
+    .disable('x-powered-by')
+    .use(express.static(process.env.RAZZLE_PUBLIC_DIR))
+    .get('/*', (req, res) => {
+      res.status(200).send('To be rendered');
+    })
+);
     
-    const server = http.createServer(
-      express()
-        .disable('x-powered-by')
-        .use(express.static(process.env.RAZZLE_PUBLIC_DIR))
-        .get('/*', (req, res) => {
-          res.status(200).send('To be rendered');
-        })
-    );
-    
-    server.listen(process.env.PORT || 3000);
+server.listen(process.env.PORT || 3000);
+```
 
 While the server side rendering entry point (ie: `src/ssr.js`) will:
 
-    import App from './client/App';
-    import React from 'react';
-    import { StaticRouter } from 'react-router-dom';
-    import { renderToString } from 'react-dom/server';
-    
-    const manifest = require(process.env.RAZZLE_ASSETS_MANIFEST);
-    const assets = Object.entries(manifest)
-      .reduce(
-        (assets, [key, value]) => {
-          const [device, k] = key.split('.');
-          if (device === process.device)
-            assets[k] = value;
-          return assets;
-        },
-        {}
-      );
-    
-    const render = (req, res) => {
-      const context = {};
-      const markup = renderToString(
-        <StaticRouter context={context} location={req.url}>
-          <App />
-        </StaticRouter>
-      );
-    
-      if (context.url) {
-        res.redirect(context.url);
-      } else {
-        res.status(200).send(
-          `<!doctype html>
-      <html lang="">
-      <head>
-          <meta httpEquiv="X-UA-Compatible" content="IE=edge" />
-          <meta charSet='utf-8' />
-          <title>Welcome to Razzle: ${process.device}</title>
-          <meta name="viewport" content="width=device-width, initial-scale=1">
-          ${assets.client.css
-            ? `<link rel="stylesheet" href="${assets.client.css}">`
-            : ''}
-          ${process.env.NODE_ENV === 'production'
-            ? `<script src="${assets.client.js}" defer></script>`
-            : `<script src="${assets.client.js}" defer crossorigin></script>`}
-      </head>
-      <body>
-          <div id="root">${markup}</div>
-      </body>
-      </html>`
-        );
-      }
-    };
-    
-    export default render;
+```js
+import App from './client/App';
+import React from 'react';
+import { StaticRouter } from 'react-router-dom';
+import { renderToString } from 'react-dom/server';
+
+const manifest = require(process.env.RAZZLE_ASSETS_MANIFEST);
+const assets = Object.entries(manifest)
+  .reduce(
+    (assets, [key, value]) => {
+      const [device, k] = key.split('.');
+      if (device === process.device)
+        assets[k] = value;
+      return assets;
+    },
+    {}
+  );
+
+const render = (req, res) => {
+  const context = {};
+  const markup = renderToString(
+    <StaticRouter context={context} location={req.url}>
+      <App />
+    </StaticRouter>
+  );
+
+  if (context.url) {
+    res.redirect(context.url);
+  } else {
+    res.status(200).send(
+      `<!doctype html>
+  <html lang="">
+  <head>
+      <meta httpEquiv="X-UA-Compatible" content="IE=edge" />
+      <meta charSet='utf-8' />
+      <title>Welcome to Razzle: ${process.device}</title>
+      <meta name="viewport" content="width=device-width, initial-scale=1">
+      ${assets.client.css
+        ? `<link rel="stylesheet" href="${assets.client.css}">`
+        : ''}
+      ${process.env.NODE_ENV === 'production'
+        ? `<script src="${assets.client.js}" defer></script>`
+        : `<script src="${assets.client.js}" defer crossorigin></script>`}
+  </head>
+  <body>
+      <div id="root">${markup}</div>
+  </body>
+  </html>`
+    );
+  }
+};
+
+export default render;
+```
 
 As far as device select, the same approach of the web bundles will be used, _DeviceModuleReplacementPlugin_:
 
@@ -406,8 +410,86 @@ function node(config, { devices, entry }) {
 
 **Note:** In order to use `process.device`  to get the device, I've [webpack's DefinePlugin](https://webpack.js.org/plugins/define-plugin/) to set that variable.
 
+At last, but not least, it's needed a way to import the deviced modules into the main server file. Keep in mind that as we are using the multicompiler feature, deviced server modules are being created in parallel with the main server module, so, just trying to import it will fail  (webpack will complain about not finding the required file).
+
+As there is no need of compiling all the server into one file, we could just tell webpack to differ importing those deviced modules to runtime. The easiest way to achieve it is just setting them as `[externals](https://webpack.js.org/configuration/externals/)`.
+
+```js
+function node(config, { devices, entry }) {
+  const bundles = devices.map(device => {
+    const filename = `${device}.server.js`;
+    return {
+      filename,
+      device,
+      name: `${device}.server`,
+      path: path.join(config.output.path, filename),
+    }
+  });
+  
+  return [
+    {
+      ...config,
+      externals: [
+        ...config.externals,
+        bundles.map(({ filename }) => filename),
+      ],
+      plugins: [
+        ...config.plugins,
+        new webpack.DefinePlugin({
+          'process.devices': JSON.stringify(devices),
+        }),
+      ],
+    },
+    bundles.map(({ device, name, filename }) => ({
+      ...config,
+      entry,
+      output: {
+        ...config.output,
+        filename,
+      },
+      plugins: [
+      	...config.plugins,
+        new webpack.DefinePlugin({
+          'process.device': JSON.stringify(device),
+        }),
+        new DeviceModuleReplacementPlugin(path.resolve('./src')),
+      ]
+    })),
+  ];
+}
+```
+
+**Note:** In order to use `process.devices`  to get the device, I've [webpack's DefinePlugin](https://webpack.js.org/plugins/define-plugin/) to set that variable.
+
+As far as the main server is concerned:
+
+```js
+import http from 'http';
+import express from 'express';
+import mobile from './mobile.server';
+import desktop from './desktop.server';
+
+const server = http.createServer(
+  express()
+    .disable('x-powered-by')
+    .use(express.static(process.env.RAZZLE_PUBLIC_DIR))
+    .get('/*', (req, res) => {
+      if ( /* decide if it's mobile */ ) {
+      	mobile(req, res);
+        return;
+      }
+         
+      desktop(req, res);
+    })
+);
+    
+server.listen(process.env.PORT || 3000);
+```
+
+**Note:** Razzle comes with a `[react-dev-utils](http://npmjs.com/package/react-dev-utils)` version that doesn't support webpack's multicompiler output, a newer version must be loaded using the [selective version resolutions](https://yarnpkg.com/lang/en/docs/selective-version-resolutions/).
+
 ### Dev
 
-In addition, on development, things got a little bit harder as razzle has _hot module replacement_.
+On development, things got a little bit harder as razzle has _hot module replacement_.
 
 [https://github.com/NickCis/razzle-plugin-device-specific-bundles](https://github.com/NickCis/razzle-plugin-device-specific-bundles "https://github.com/NickCis/razzle-plugin-device-specific-bundles")
