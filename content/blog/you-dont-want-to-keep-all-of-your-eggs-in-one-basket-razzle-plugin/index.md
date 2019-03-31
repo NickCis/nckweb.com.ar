@@ -295,7 +295,6 @@ For the second objective, we can't just add the _DeviceModuleReplacementPlugin,_
 
     src
     ├── index.js
-    ├── README.md
     ├── client
     │   └── ...
     └── ssr.js
@@ -635,7 +634,7 @@ function node(config, { dev, devices, entry }, webpack) {
 
 ***
 
-The final implementation is called `[razzle-plugin-device-spcific-bundles](https://www.npmjs.com/package/razzle-plugin-device-specific-bundles)` it can be found on [github](https://github.com/NickCis/razzle-plugin-device-specific-bundles).
+The final implementation is called [`razzle-plugin-device-spcific-bundles`](https://www.npmjs.com/package/razzle-plugin-device-specific-bundles) it can be found on [github](https://github.com/NickCis/razzle-plugin-device-specific-bundles).
 
 As far as installation and usage is concerned, the package has to be added:
 
@@ -660,6 +659,8 @@ Some options can be edited:
 We'll write the following server's main entry point:
 
 ```js
+// src/index.js
+
 import http from 'http';
 import express from 'express';
 import modules from 'SSR';
@@ -677,7 +678,76 @@ const server = http.createServer(
 server.listen(process.env.PORT || 3000);
 ```
 
-**Note:** in order to fake device decision I'm just picking any device randomly, ideally, you should do user agent sniffing or something of the sort.
+**Note:** in order to fake device decision we'll just pick any device randomly, ideally, user agent sniffing or something of the sort should be done.
+
+And have the following `src/ssr.js`:
+
+```js
+// src/ssr.js
+
+import App from './App';
+import React from 'react';
+import { StaticRouter } from 'react-router-dom';
+import { renderToString } from 'react-dom/server';
+
+const manifest = require(process.env.RAZZLE_ASSETS_MANIFEST);
+const assets = Object.entries(manifest)
+  .reduce(
+    (assets, [key, value]) => {
+      const [device, k] = key.split('.');
+      if (device === process.device)
+        assets[k] = value;
+      return assets;
+    },
+    {}
+  );
+
+const render = (req, res) => {
+  const context = {};
+  const markup = renderToString(
+    <StaticRouter context={context} location={req.url}>
+      <App />
+    </StaticRouter>
+  );
+
+  if (context.url) {
+    res.redirect(context.url);
+  } else {
+    res.status(200).send(
+      `<!doctype html>
+  <html lang="">
+  <head>
+      <meta httpEquiv="X-UA-Compatible" content="IE=edge" />
+      <meta charSet='utf-8' />
+      <title>Welcome to Razzle: ${process.device}</title>
+      <meta name="viewport" content="width=device-width, initial-scale=1">
+      ${assets.client.css
+        ? `<link rel="stylesheet" href="${assets.client.css}">`
+        : ''}
+      ${process.env.NODE_ENV === 'production'
+        ? `<script src="${assets.client.js}" defer></script>`
+        : `<script src="${assets.client.js}" defer crossorigin></script>`}
+  </head>
+  <body>
+      <div id="root">${markup}</div>
+  </body>
+  </html>`
+    );
+  }
+};
+
+export default render;
+```
+
+Remember that the `App` component has device implementations, ie, some child components will have different implementations for desktop and mobile:
+
+    src
+    ├── index.js
+    ├── ssr.js
+    ├── client.js
+    ├── App.js
+    ├── Component.desktop.js
+    └── Component.mobile.js
 
 The full example can be found on[ github](https://github.com/NickCis/razzle-plugin-device-specific-bundles/tree/master/example).
 
