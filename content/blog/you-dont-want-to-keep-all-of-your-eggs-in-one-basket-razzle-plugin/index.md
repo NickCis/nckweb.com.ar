@@ -490,6 +490,50 @@ server.listen(process.env.PORT || 3000);
 
 ### Dev
 
-On development, things got a little bit harder as razzle has _hot module replacement_.
+On development, things got a little bit harder as razzle has _hot module replacement_. Particularly, this brings several problems:
+
+* Hot reloading plugins have to be removed from the deviced modules
+* [Start Server plugin](https://github.com/ericclemmons/start-server-webpack-plugin) isn't prepared for a multicompiler environment
+* `externals` approach for importing deviced modules will not hot reload
+
+The first issue is pretty straight forward to be solved, filtering instances of `webpack.HotModuleReplacementPlugin` will do the trick:
+
+    plugins.filter(plugin => !(plugin instanceof webpack.HotModuleReplacementPlugin))
+
+Regarding Start server plugin, it wasn't develop to deal with a multicompiler environment, ie, it starts the server when the [_afterEmit _](https://webpack.js.org/api/compiler-hooks/#afteremit)event of the compiler is dispatched. The problem in the multicompiler environment is that we don't have just one compiler, so we'll have an _afterEmit_ event per device (and one extra for the main server). The server will be started when the first event is dispatched, but we want to start it when the last event is fired. In order to address this issue, is sent a [PR](https://github.com/ericclemmons/start-server-webpack-plugin/pull/32), hoping that we could just do the [_selective version resolution_](https://yarnpkg.com/lang/en/docs/selective-version-resolutions/) trick.
+
+Unluckily, I got no response from the plugin's maintainers. So, I ended up forking and publishing the plugin under a scope. From the razzle plugin side, we'll have to filter the _Start server plugin_ and add the new one:
+
+```js
+const StartServerPlugin = require('@nickcis/start-server-webpack-plugin');
+
+function node(config, { dev /*, ... */ }, webpack) {
+  // ...
+  let plugins = config.plugins;
+  
+  if (dev) {
+    const startServerOptions = config.plugins.find(
+      p =>
+        p
+        && p.constructor
+        && p.constructor.name === 'StartServerPlugin'
+    ).options;
+
+    plugins = [
+      ...config.plugins.filter(
+        p =>
+          p
+          && (
+            !p.constructor
+            || p.constructor.name !== 'StartServerPlugin'
+          )
+      ),
+      new StartServerPlugin(startServerOptions)
+    ];
+  }
+  
+  // ...
+}
+```
 
 [https://github.com/NickCis/razzle-plugin-device-specific-bundles](https://github.com/NickCis/razzle-plugin-device-specific-bundles "https://github.com/NickCis/razzle-plugin-device-specific-bundles")
