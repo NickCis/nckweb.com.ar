@@ -681,6 +681,10 @@ The full example can be found on[ github](https://github.com/NickCis/razzle-plug
 
 ***
 
-Although, boilerplate was reduced making the specific device feature portable to any project, there are several things to improve.
+Although, most of the boilerplate was reduced, there are several things to improve.
 
 On the next post of the series, we'll try to generalize the implementation writing a webpack plugin in order to remove the need to use razzle. So, the device feature could be implemented on any project that uses webpack!. In addition, working directly with webpack will give us the possibility of removing all those compilations, improving build times!.
+
+![Yeah, Moe, that team sure did webpack last night. They just plain webpacked. I've seen teams webpack before but they were the webpackiest bunch of webpack that ever webpacked.](./homer-webpack.png)
+
+_Yes, I've probably repeated webpack too much_.
