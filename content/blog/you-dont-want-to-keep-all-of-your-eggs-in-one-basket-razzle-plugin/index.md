@@ -633,7 +633,7 @@ function node(config, { dev, devices, entry }, webpack) {
 
 ***
 
-The final implementation is called `[razzle-plugin-device-spcific-bundles](https://www.npmjs.com/package/razzle-plugin-device-specific-bundles)` it can be found on [github](https://github.com/NickCis/razzle-plugin-device-specific-bundles). 
+The final implementation is called `[razzle-plugin-device-spcific-bundles](https://www.npmjs.com/package/razzle-plugin-device-specific-bundles)` it can be found on [github](https://github.com/NickCis/razzle-plugin-device-specific-bundles).
 
 As far as installation and usage is concerned, the package has to be added:
 
@@ -675,6 +675,12 @@ const server = http.createServer(
 server.listen(process.env.PORT || 3000);
 ```
 
-**Note:** in order to fake device decision I'm just picking any device randomly, ideally, you should do user agent sniffing or something of the sort. 
+**Note:** in order to fake device decision I'm just picking any device randomly, ideally, you should do user agent sniffing or something of the sort.
 
-[https://github.com/NickCis/razzle-plugin-device-specific-bundles](https://github.com/NickCis/razzle-plugin-device-specific-bundles "https://github.com/NickCis/razzle-plugin-device-specific-bundles")
+The full example can be found on[ github](https://github.com/NickCis/razzle-plugin-device-specific-bundles/tree/master/example).
+
+***
+
+Although, boilerplate was reduced making the specific device feature portable to any project, there are several things to improve.
+
+On the next post of the series, we'll try to generalize the implementation writing a webpack plugin in order to remove the need to use razzle. So, the device feature could be implemented on any project that uses webpack!. In addition, working directly with webpack will give us the possibility of removing all those compilations, improving build times!.
