@@ -739,7 +739,7 @@ const render = (req, res) => {
 export default render;
 ```
 
-Remember that the `App` component has device implementations, ie, some child components will have different implementations for desktop and mobile:
+Remember that the `App` component has device implementations, what is to say, some child components will have different implementations for desktop and mobile:
 
     src
     ├── index.js
@@ -749,7 +749,9 @@ Remember that the `App` component has device implementations, ie, some child com
     ├── Component.desktop.js
     └── Component.mobile.js
 
-The full example can be found on[ github](https://github.com/NickCis/razzle-plugin-device-specific-bundles/tree/master/example).
+So, when mobile's render is called, it will run the bundle with the `Component.mobile.js` and when the desktop's one is called, the bundle with `Component.desktop.js` will be used.
+
+The full example can be found on [github](https://github.com/NickCis/razzle-plugin-device-specific-bundles/tree/master/example).
 
 ***
 
