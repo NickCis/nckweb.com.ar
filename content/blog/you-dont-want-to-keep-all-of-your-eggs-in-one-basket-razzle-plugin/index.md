@@ -413,7 +413,7 @@ function node(config, { devices, entry }) {
 
 At last, but not least, it's needed a way to import the deviced modules into the main server file. Keep in mind that as we are using the multicompiler feature, deviced server modules are being created in parallel with the main server module, so, just trying to import it will fail  (webpack will complain about not finding the required file).
 
-As there is no need of compiling all the server into one file, we could just tell webpack to differ importing those deviced modules to runtime. The easiest way to achieve it is just setting them as `[externals](https://webpack.js.org/configuration/externals/)`.
+As there is no need of compiling all the server into one file, we could just tell webpack to differ importing those deviced modules to runtime. The easiest way to achieve it is just setting them as [`externals`](https://webpack.js.org/configuration/externals/).
 
 ```js
 function node(config, { devices, entry }) {
