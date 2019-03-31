@@ -487,7 +487,7 @@ const server = http.createServer(
 server.listen(process.env.PORT || 3000);
 ```
 
-**Note:** Razzle comes with a `[react-dev-utils](http://npmjs.com/package/react-dev-utils)` version that doesn't support webpack's multicompiler output, a newer version must be loaded using the [selective version resolutions](https://yarnpkg.com/lang/en/docs/selective-version-resolutions/).
+**Note:** Razzle comes with a [`react-dev-utils`](http://npmjs.com/package/react-dev-utils) version that doesn't support webpack's multicompiler output, a newer version must be loaded using the [selective version resolutions](https://yarnpkg.com/lang/en/docs/selective-version-resolutions/).
 
 ### Dev
 
