@@ -530,6 +530,8 @@ function node(config, { dev /*, ... */ }, webpack) {
       ),
       new StartServerPlugin(startServerOptions)
     ];
+    
+    // ...
   }
   
   // ...
