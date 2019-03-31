@@ -63,11 +63,11 @@ module.exports = function myRazzlePlugin(config, env, webpack, options) {
 
 This function is called for each configuration (web and node) and allows you to modify and return a new configuration object.
 
-Keep in mind that what returns the last plugin will be [thrown to webpack](https://github.com/jaredpalmer/razzle/blob/master/packages/razzle/scripts/build.js#L90). I will abuse of this, webpack’s config object will be replaced with an array in order to use the _multicompiler_ feature.
+Keep in mind that what returns the last plugin will be [thrown to webpack](https://github.com/jaredpalmer/razzle/blob/master/packages/razzle/scripts/build.js#L90). We will abuse of this, webpack’s config object will be replaced with an array in order to use the _multicompiler_ feature.
 
 ## DeviceModuleReplacementPlugin
 
-The magic behind the device module implementation is resolving to a device specific module, instead of the required one. As it was explained in the first post, the idea is that if a file with the device extension ( `<filename>.<device>.js`) exists, it will be used instead of the regular file ( `<filename>.js`).
+The magic behind the device module implementation is resolving to a device specific file, instead of the required one. As it was explained in the first post, the idea is that if a file with the device extension ( `<filename>.<device>.js`) exists, it will be used instead of the regular file ( `<filename>.js`).
 
 On the first post, [webpack’s NormalModuleReplacement](https://webpack.js.org/plugins/normal-module-replacement-plugin/) plugin was used, in order to clean things up, a new webpack plugin was developed.
 
@@ -269,11 +269,11 @@ function web(config, { devices }, webpack) {
 
 ## Node bundle (or must i say bundles?)
 
-The node part is a bit trickier. Just generating a bundle per device won't work, as it is needed an extra one that does the server's listening and device detection (to execute the device specific rendering and bundle serving).
+The node part is a bit trickier. Generating a bundle per device won't work, as it is needed an extra one that does the server's listening and device detection (to execute the device specific rendering and bundle serving).
 
 ### Production build
 
-I will start with production build, since it's simpler (I'll explain later why).
+We will start with production build, since it's simpler (I'll explain later why).
 
 Tasks to be done:
 
