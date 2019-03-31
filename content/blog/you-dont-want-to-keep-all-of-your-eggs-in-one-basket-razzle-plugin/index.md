@@ -215,7 +215,7 @@ After some tests, I’ve realized that dev server stopped working as expected. I
 
 ![Browser's dev console errors while using dev server](./browser-console-error.png)
 
-To understand a bit what was happening, I had to pay special attention to the [_How razzle works (the secret sauce_](https://github.com/jaredpalmer/razzle#how-razzle-works-the-secret-sauce)_)_ part of the readme:
+To understand a bit what was happening, I had to pay special attention to the [_How razzle works (the secret sauce)_](https://github.com/jaredpalmer/razzle#how-razzle-works-the-secret-sauce) part of the readme:
 
 > In development mode (`razzle start`), Razzle bundles both your client and server code using two different webpack instances running with Hot Module Replacement in parallel. While your server is bundled and run on whatever port you specify in `src/index.js` (`3000` is the default), the client bundle (i.e. entry point at `src/client.js`) is served via `webpack-dev-server` on a different port (`3001` by default) with its `publicPath` explicitly set to `localhost:3001` (and not `/` like many other setups do). Then the server's html template just points to the absolute url of the client JS: `localhost:3001/static/js/client.js`. Since both webpack instances watch the same files, whenever you make edits, they hot reload at _exactly_ the same time. Best of all, because they use the same code, the same webpack loaders, and the same babel transformations, you never run into a React checksum mismatch error.
 
@@ -500,7 +500,7 @@ The first issue is pretty straight forward to be solved, filtering instances of 
 
     plugins.filter(plugin => !(plugin instanceof webpack.HotModuleReplacementPlugin))
 
-Regarding Start server plugin, it wasn't develop to deal with a multicompiler environment, ie, it starts the server when the [_afterEmit _](https://webpack.js.org/api/compiler-hooks/#afteremit)event of the compiler is dispatched. The problem in the multicompiler environment is that we don't have just one compiler, so we'll have an _afterEmit_ event per device (and one extra for the main server). The server will be started when the first event is dispatched, but we want to start it when the last event is fired. In order to address this issue, is sent a [PR](https://github.com/ericclemmons/start-server-webpack-plugin/pull/32), hoping that we could just do the [_selective version resolution_](https://yarnpkg.com/lang/en/docs/selective-version-resolutions/) trick.
+Regarding Start server plugin, it wasn't develop to deal with a multicompiler environment, ie, it starts the server when the [_afterEmit_](https://webpack.js.org/api/compiler-hooks/#afteremit) event of the compiler is dispatched. The problem in the multicompiler environment is that we don't have just one compiler, so we'll have an _afterEmit_ event per device (and one extra for the main server). The server will be started when the first event is dispatched, but we want to start it when the last event is fired. In order to address this issue, is sent a [PR](https://github.com/ericclemmons/start-server-webpack-plugin/pull/32), hoping that we could just do the [_selective version resolution_](https://yarnpkg.com/lang/en/docs/selective-version-resolutions/) trick.
 
 Unluckily, I got no response from the plugin's maintainers. So, I ended up forking and publishing the plugin under a scope. From the razzle plugin side, we'll have to filter the _Start server plugin_ and add the new one:
 
@@ -539,5 +539,142 @@ function node(config, { dev /*, ... */ }, webpack) {
   // ...
 }
 ```
+
+Last issue to be addressed is how to fix hot reloading for the deviced modules. The `externals` approach will only be used for the production build, for development, we'll just write a mock module which requires itself on runtime. In this way, webpack will bundle the `require` which will trigger importing on runtime. How can we trick webpack into writing an actual `require`?, easy, with a dirty `eval`:
+
+```js
+// desktop.server.js
+const r = eval('require');
+module.exports = r('./desktop.server');
+```
+
+For the time the server starts, the deviced module bundling will have been finished and the mocked file will have been replaced with the actual module _(which will trigger a rebuild and hot reloading)_. Although, this isn't ideal, it works _(and is only used for development)_.
+
+Rounding up things:
+
+```js
+function node(config, { dev, devices, entry }, webpack) {
+  const bundles = devices.map(device => {
+    const filename = `${device}.server.js`;
+    return {
+      filename,
+      device,
+      name: `${device}.server`,
+      path: path.join(config.output.path, filename),
+    }
+  });
+
+  let plugins = config.plugins;
+
+  if (dev) {
+    const startServerOptions = config.plugins.find(
+      p =>
+        p
+        && p.constructor
+        && p.constructor.name === 'StartServerPlugin'
+    ).options;
+
+    plugins = [
+      ...config.plugins.filter(
+        p =>
+          p
+          && (
+            !p.constructor
+            || p.constructor.name !== 'StartServerPlugin'
+          )
+      ),
+      new StartServerPlugin(startServerOptions)
+    ];
+    
+    writeMockModules(bundles);
+  }
+
+  const serversPath = path.join(config.output.path, 'servers.js');
+
+  return [
+    ...bundles.map(({ device, name, filename }) => ({
+      ...config,
+      name,
+      plugins: [
+        ...plugins.filter(plugin => !(plugin instanceof webpack.HotModuleReplacementPlugin)),
+        new webpack.DefinePlugin({
+          'process.device': JSON.stringify(device),
+        }),
+        new DeviceModuleReplacementPlugin(path.resolve('./src')),
+      ],
+      entry,
+      output: {
+        ...config.output,
+        filename,
+      }
+    })),
+    {
+      ...config,
+      externals: [
+        ...config.externals,
+        ...(dev
+          ? []
+          : bundles.map(({ filename }) => `./${filename}`)
+        ),
+      ],
+      plugins: [
+        ...plugins,
+        new webpack.DefinePlugin({
+          'process.devices': JSON.stringify(devices)
+        }),
+        new ServersPlugin(serversPath, bundles, dev),
+      ],
+    },
+  ];
+}
+```
+
+**Note:** `writeMockModules` is supposed to write the mock initial require files for all the deviced modules, on the actual implementation a [webpack's plugin](https://github.com/NickCis/razzle-plugin-device-specific-bundles/blob/master/ServersPlugin.js) does this job.
+
+***
+
+The final implementation is called `[razzle-plugin-device-spcific-bundles](https://www.npmjs.com/package/razzle-plugin-device-specific-bundles)` it can be found on [github](https://github.com/NickCis/razzle-plugin-device-specific-bundles). 
+
+As far as installation and usage is concerned, the package has to be added:
+
+    yarn add --dev razzle-plugin-device-specific-bundles
+
+And then, the plugin should be specified on `razzle.config.js` , _it should be the last plugin_:
+
+```js
+// razzle.config.js
+
+module.exports = {
+  plugins: ['device-specific-bundles'],
+};
+```
+
+Some options can be edited:
+
+* `devices`: An array of the enabled devices, by default `[ 'desktop', 'mobile' ]`
+* `entry`: The server's deviced entry point, by default `ssr.js`
+* `alias`: The alias used in the server to include an object with all the deviced modules, by default `SSR`
+
+We'll write the following server's main entry point:
+
+```js
+import http from 'http';
+import express from 'express';
+import modules from 'SSR';
+
+const server = http.createServer(
+  express()
+    .disable('x-powered-by')
+    .use(express.static(process.env.RAZZLE_PUBLIC_DIR))
+    .get('/*', (req, res) => {
+      const device = process.devices[Math.floor(Math.random() * process.devices.length)];
+      modules[device](req, res);
+    })
+);
+
+server.listen(process.env.PORT || 3000);
+```
+
+**Note:** in order to fake device decision I'm just picking any device randomly, ideally, you should do user agent sniffing or something of the sort. 
 
 [https://github.com/NickCis/razzle-plugin-device-specific-bundles](https://github.com/NickCis/razzle-plugin-device-specific-bundles "https://github.com/NickCis/razzle-plugin-device-specific-bundles")
