@@ -1,7 +1,7 @@
 ---
 published: true
 title: 'You don''t want to keep all of your eggs in one basket: razzle plugin (II)'
-date: 2019-03-04T03:00:00+00:00
+date: 2019-03-31T17:48:00-03:00
 description: Reducing boilerplate of specific device bundles implementing a custom
   Razzle plugin
 tags: react, webpack, javascript, nodejs, razzlejs
