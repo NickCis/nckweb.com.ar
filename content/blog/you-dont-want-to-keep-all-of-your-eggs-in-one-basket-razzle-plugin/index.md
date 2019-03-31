@@ -24,6 +24,8 @@ _tl;dr; the idea is to reduce the needed boilerplate in order to serve particula
 
 This post will be more code related, I’ll show how I encapsulated the specific device logic into a razzle plugin and all the problems I’ve had to sort that out. In the end, there will be a working example of this feature.
 
+![](./ralph-coleco.jpeg)
+
 ## Razzle
 
 Well, first of all, what is [Razzle](https://github.com/jaredpalmer/razzle)?:
