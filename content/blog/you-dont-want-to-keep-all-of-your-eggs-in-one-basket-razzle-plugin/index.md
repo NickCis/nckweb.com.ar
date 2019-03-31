@@ -634,7 +634,7 @@ function node(config, { dev, devices, entry }, webpack) {
 
 ***
 
-The final implementation is called `[razzle-plugin-device-spcific-bundles](https://www.npmjs.com/package/razzle-plugin-device-specific-bundles)` it can be found on [github](https://github.com/NickCis/razzle-plugin-device-specific-bundles).
+The final implementation is called [`razzle-plugin-device-spcific-bundles`](https://www.npmjs.com/package/razzle-plugin-device-specific-bundles) it can be found on [github](https://github.com/NickCis/razzle-plugin-device-specific-bundles).
 
 As far as installation and usage is concerned, the package has to be added:
 
