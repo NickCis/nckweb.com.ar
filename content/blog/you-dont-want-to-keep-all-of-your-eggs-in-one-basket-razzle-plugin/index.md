@@ -507,6 +507,8 @@ Unluckily, I got no response from the plugin's maintainers. So, I ended up forki
 ```js
 const StartServerPlugin = require('@nickcis/start-server-webpack-plugin');
 
+// ...
+
 function node(config, { dev /*, ... */ }, webpack) {
   // ...
   let plugins = config.plugins;
