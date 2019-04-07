@@ -29,6 +29,6 @@ fields:
   name: canonical_url
   label: Canonical url
 pages:
-- content/blog/a-pain-in-the-react-challenges-behind-ssr/a-pain-in-the-react-challenges-behind-ssr.md
+- content/blog/a-pain-in-the-react-challenges-behind-ssr/index.md
 - content/blog/android-byod-staying-connected-without-losing-phone-control/index.md
 - content/blog/you-dont-want-to-keep-all-of-your-eggs-in-one-basket-razzle-plugin/index.md
