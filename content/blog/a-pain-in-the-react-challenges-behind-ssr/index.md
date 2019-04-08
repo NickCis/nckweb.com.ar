@@ -2,7 +2,7 @@
 date: 2019-03-05T16:42:19+00:00
 title: 'A pain in the react: Challenges behind SSR'
 description: ''
-tags: ''
+tags: react, ssr, webpack, javascript
 published: false
 canonical_url: ''
 
@@ -34,9 +34,9 @@ server.listen(8000);
 
 Well, sadly this will not work. Mainly because we are used to writing [_jsx_](https://reactjs.org/docs/jsx-in-depth.html) in React, and we tend to forget that it isn't valid javascript. We could change the `<App />`  line to use `React.createElement` but that approach wouldn't escale for all the `App.js` file, the rest of the components and _css_ files (it gets worse if a css pre-processor is used). So, here comes the first problem: _The need of transpiling server code_.
 
-A common practice is dispatching data fetching on the [`componentDidMount` lifecycle](https://reactjs.org/docs/react-component.html#componentdidmount). But, do we have that life cycle method on server side?, _spoiler_: **_no_**. Really, it won't make any sense having `componentDidMount` on server, remember that `renderToString` is a synchronous single pass rendering, while on client side, we would call `setState` after data fetching is done in order to trigger another rendering phase. This difference between life cycles leds to several problems, first of all, how can we determine and fetch data before we render on server side?. And second, how can we share the state (which would have been generated with `setState`) between server and client?.
+A common practice is dispatching data fetching on the [ ](https://reactjs.org/docs/react-component.html#componentdidmount)`[componentDidMount](https://reactjs.org/docs/react-component.html#componentdidmount)`[ lifecycle](https://reactjs.org/docs/react-component.html#componentdidmount). But, do we have that life cycle method on server side?, _spoiler_: **_no_**. Really, it won't make any sense having `componentDidMount` on server, remember that `renderToString` is a synchronous single pass rendering, while on client side, we would call `setState` after data fetching is done in order to trigger another rendering phase. This difference between life cycles leds to several problems, first of all, how can we determine and fetch data before we render on server side?. And second, how can we share the state (which would have been generated with `setState`) between server and client?.
 
-Last but not least, on client side we would trigger data fetching with ajax. Something like making a [fetch](https://developer.mozilla.org/docs/Web/API/Fetch_API) call to an endpoint. This request will have specific information (mainly host information and headers such as the _cookie_ one), how can this be replicated on server side?  
+Last but not least, on client side we would trigger data fetching with ajax. Something like making a [fetch](https://developer.mozilla.org/docs/Web/API/Fetch_API) call to an endpoint. This request will have specific information (mainly host information and headers such as the _cookie_ one), how can this be replicated on server side?
 
 To round up, we'll have to deal with the following issues:
 
@@ -44,3 +44,9 @@ To round up, we'll have to deal with the following issues:
 2. Determine data dependencies
 3. Actually fetching data
 4. Sharing state _(do not forget to prevent double fetch!)_
+
+## Generating valid JS code for the server
+
+React is known for having a steep configuration in order to get it running. If we check what is considered a _hello world_ example (using [_create react app_](https://facebook.github.io/create-react-app/)) we would realize that we are including like [1300 dependencies](https://npm.anvaka.com/#/view/2d/react-scripts) . All these dependencies deal with a lot of features and requirements that we probably don't need, but, you get the point, it isn't something simple to get react running.
+
+![](./react-dependencies.png "React scripts dependencies")
