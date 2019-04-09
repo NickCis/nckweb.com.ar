@@ -47,6 +47,7 @@
     "build": "gatsby build",
     "now-build": "yarn build",
     "forestry:preview": "gatsby develop -p 8080 -H 0.0.0.0",
+    "forestry:publish": "yarn build --prefix-paths",
     "develop": "gatsby develop",
     "start": "yarn develop",
     "serve": "gatsby serve",
