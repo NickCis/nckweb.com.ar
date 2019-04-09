@@ -52,3 +52,10 @@ To round up, we'll have to deal with the following issues:
 React is known for having a steep configuration in order to get it running. If we check what is considered a _hello world_ example (using [_create react app_](https://facebook.github.io/create-react-app/)) we would realize that we are including like [1300 dependencies](https://npm.anvaka.com/#/view/2d/react-scripts) . All these dependencies deal with a lot of features and requirements that we probably don't need, but, you get the point, it isn't something simple to get react running.
 
 ![](./react-dependencies.png "React scripts dependencies")
+
+As far as how could we get valid node js code, we've got several options:
+
+* **Webpack**: apply similar building steps as it's done with the client code
+* **Babel:** transpile the code using [babel-cli](https://babeljs.io/docs/en/babel-cli), no bundling.
+
+There are many more options, we could use another bundlers (or compile with zeit's ncc), but it doesn't make much sense to throw new tooling.
