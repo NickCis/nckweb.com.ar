@@ -78,3 +78,70 @@ Well, returning to our objective, we'll need to add some packages:
 yarn add --dev webpack webpack-cli webpack-node-externals @babel/core @babel/preset-env @babel/preset-react babel-loader
 yarn add react react-dom
 ```
+
+You may be wondering what `webpack-node-externals` is, well, on node, we don't want to bundle packages that can be included (`require`) on runtime (all packages from `node_modules` and the standard library), [webpack-node-externals](https://www.npmjs.com/package/webpack-node-externals) does exactly that.
+
+```js
+module.exports = [
+  // Client configuration
+  {
+    mode,
+    entry: path.join(src, 'client'),
+    output: {
+      path: dist,
+      filename: 'client.js',
+    },
+    module: {
+      rules: [
+        {
+          test: /\.js$/,
+          include: [src],
+          use: [
+            {
+              loader: 'babel-loader',
+              options: {
+                presets: [
+                  ['@babel/preset-env', { modules: false }],
+                  '@babel/preset-react'
+                ],
+              },
+            },
+          ],
+        },
+      ],
+    },
+  },
+  // Server configuration
+  {
+    mode,
+    target: 'node',
+    entry: src,
+    output: {
+      path: dist,
+      filename: 'server.js',
+    },
+    module: {
+      rules: [
+        {
+          test: /\.js$/,
+          include: [src],
+          use: [
+            {
+              loader: 'babel-loader',
+              options: {
+                presets: [
+                  ['@babel/preset-env', { targets: { node: 'current' }}],
+                  '@babel/preset-react'
+                ],
+              },
+            },
+          ],
+        },
+      ],
+    },
+    externals: [
+      nodeExternals(),
+    ],
+  },
+];
+```
