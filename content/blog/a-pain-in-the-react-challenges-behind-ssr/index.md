@@ -43,7 +43,7 @@ Last but not least, on client side we would trigger data fetching with ajax. Som
 To round up, we'll have to deal with the following issues:
 
 1. Generating valid JS code for the server
-2. Determine data dependencies
+2. Determining data dependencies
 3. Actually fetching data
 4. Sharing state _(do not forget to prevent double fetch!)_
 
@@ -80,6 +80,8 @@ yarn add react react-dom
 ```
 
 You may be wondering what `webpack-node-externals` is, well, on node, we don't want to bundle packages that can be included (`require`) on runtime (all packages from `node_modules` and the standard library), [webpack-node-externals](https://www.npmjs.com/package/webpack-node-externals) does exactly that.
+
+Instead of separating build phases of server and client will use [webpack's array configuration](https://webpack.js.org/configuration/configuration-types/#exporting-multiple-configurations):
 
 ```js
 module.exports = [
@@ -145,3 +147,11 @@ module.exports = [
   },
 ];
 ```
+
+I won't enter into details about babel presets, [babel-preset-env](https://babeljs.io/docs/en/babel-preset-env) is the easiest way to support new ECMA syntax and [babel-preset-react](https://babeljs.io/docs/en/babel-preset-react) allow us to write jsx.
+
+[Full example can be found here](https://github.com/NickCis/a-pain-in-the-react-challenges-behind-ssr/tree/master/1-webpack-ssr).
+
+So, are we done?. The quick answer is no. This example was the minimum to get React server side rendering running, it lacks of many features (no css, no static files, no source map, no production optimization, no vendor bundle, no code spliting, etc). Although, we could start building a full project from this, it isn't recommended. Now a days, we probably will use a tool that abstract all this configuration, such as [razzle](https://github.com/jaredpalmer/razzle), [next.js](https://github.com/zeit/next.js) or [react-server](https://github.com/redfin/react-server). The idea of the example was to understand, on a higher level, how this tools work under the hood.
+
+## Determining data dependencies
