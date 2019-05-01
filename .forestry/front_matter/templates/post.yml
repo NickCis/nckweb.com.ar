@@ -14,7 +14,7 @@ fields:
     date_format: DD/MM/YYYY
     time_format: HH:mm ZZ
     required: true
-  default: 2019-03-05 16:42:19 +0000
+  default: '2019-03-05T16:42:19.000+00:00'
 - type: textarea
   name: description
   label: Description
