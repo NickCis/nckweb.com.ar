@@ -199,7 +199,7 @@ const routes = [
 export default routes;
 ```
 
-Next step is to determine what pages match the requested url. To achieve this, we'll use [React Router's ](https://reacttraining.com/react-router/web/api/matchPath)`matchPath` function:
+Next step is to determine what pages match the requested url. To achieve this, we'll use [React Router's ](https://reacttraining.com/react-router/web/api/matchPath)`matchPath` function, and then call the `getInitialProps` static method if it exists:
 
 ```js
 server
@@ -223,4 +223,31 @@ server
 
 On client side, we'll have to add some code to run the `getInitialProps` method (something like the [After component does in afterjs](https://github.com/jaredpalmer/after.js/blob/master/src/After.tsx)).
 
-For the sake of simplicity, we'll follow a slightly different approach than _afterjs_. On the `componentDidMount` and `componentWillReceiveProps` methods, we'll just call `getInitialProps` .
+For the sake of simplicity, we'll follow a slightly different approach than _afterjs_. On the `componentDidMount` and `componentDidUpdate` methods, we'll just call `getInitialProps` :
+
+```js
+class Home extends Component {
+  static async getInitialProps() {
+    console.log('Fetching Home!');
+  }
+
+  componentDidMount() {
+    Home.getInitialProps();
+  }
+
+  componentDidUpdate(prevProps){
+    // Only fetch data if location has changed
+    if (this.props.location != prevProps.location)
+      Home.getInitialProps();
+  }
+
+  render() {
+    return (
+      <div className="Home">
+        This is the home!
+      </div>
+    );
+  }
+}
+
+```
