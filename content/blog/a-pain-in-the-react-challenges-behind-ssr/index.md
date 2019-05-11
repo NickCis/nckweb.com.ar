@@ -264,3 +264,17 @@ The drawback of this solution is that is rather complex, I won't enter into too 
 Although, we are able to determine, on client and server, what data dependencies we need to fetch, we haven't actually fetched any data nor shared across client and server!
 
 ## Actually fetching data
+
+On the previous step, we've detected what data is needed, but we haven't developed a way to actually fetch that data. Going to the basics, fetching data will be a simple ajax call (calling [fetch](https://developer.mozilla.org/en-US/docs/Web/API/Fetch_API) on client side and a [node compatible fetch implementation](https://www.npmjs.com/package/node-fetch) on server side). But, we must bare in mind that on the client side fetch does some jobs under the hood:
+
+```js
+const fetch = require('node-fetch');
+
+fetch('/data');
+
+// UnhandledPromiseRejectionWarning: TypeError: Only absolute URLs are supported
+```
+
+In addition, the client stores and sends http headers (eg.: _Cookie_) that we'll need to forward while doing SSR.
+
+![](./browser-node.png)
