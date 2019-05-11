@@ -253,7 +253,12 @@ class Home extends Component {
 
 [Full example can be found here](https://github.com/NickCis/a-pain-in-the-react-challenges-behind-ssr/tree/master/2-determining-data-dependencies).
 
+On the other hand, Apollo GraphQL uses a tree based approach. This way of determining data dependencies is more declarative, as any component (not only _pages_) could declare them. 
+
+![](./apollo-tree.jpeg "A React Component Tree - by Lewis Chung")
+
+The drawback of this solution is that is rather complex, I won't enter into too much detail, as [Apollo's Blog has a great post explaining how it works](https://blog.apollographql.com/how-server-side-rendering-works-with-react-apollo-20f31b0c7348). To make a short summary, [Apollo has a function called getDataFromTree](https://www.apollographql.com/docs/react/features/server-side-rendering) which walks through the entire React tree checking if components need to fetch information. Before the `2.5` branch, Apollo has a custom [walkTree method](https://github.com/apollographql/react-apollo/blob/apollo-client-2.0/src/getDataFromTree.ts#L25) which somehow reimplements React rendering algorithm (this method is explained on the metioned apollo's blog post)
+
 Although, we are able to determine, on client and server, what data dependencies we need to fetch, we haven't actually fetched any data nor shared across client and server!
 
 ## Actually fetching data
-
