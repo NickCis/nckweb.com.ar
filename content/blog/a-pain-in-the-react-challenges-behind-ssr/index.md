@@ -152,7 +152,7 @@ I won't enter into details about babel presets, [babel-preset-env](https://babel
 
 [Full example can be found here](https://github.com/NickCis/a-pain-in-the-react-challenges-behind-ssr/tree/master/1-webpack-ssr).
 
-So, are we done?. The quick answer is no. This example was the minimum to get React server side rendering running, it lacks of many features (no css, no static files, no source map, no production optimization, no vendor bundle, no code spliting, etc). Although, we could start building a full project from this, it isn't recommended. Now a days, we probably will use a tool that abstract all this configuration, such as [razzle](https://github.com/jaredpalmer/razzle), [next.js](https://github.com/zeit/next.js) or [react-server](https://github.com/redfin/react-server). The idea of the example was to understand, on a higher level, how this tools work under the hood.
+So, are we done?. The quick answer is no. This example was the minimum to get React server side rendering running, it lacks of many features (no css, no static files, no source map, no production optimization, no vendor bundle, no code spliting, etc). Although, we could start building a full project from this, it isn't recommended. Now a days, we probably will use a tool that abstract all this configuration, such as [razzle](https://github.com/jaredpalmer/razzle), [next.js](https://github.com/zeit/next.js) or [react-server](https://github.com/redfin/react-server). The idea of the example was to understand, on a higher level, how these tools work under the hood.
 
 _For the following examples we will use razzle to reduce the needed boilerplate._
 
@@ -162,14 +162,14 @@ As I have said before, React on server behaves differently than on client. When 
 
 There are mainly two approaches to solve this problem:
 
-* A Page / Route based approach ([NextJs's _getInitialProps _](https://nextjs.org/docs#fetching-data-and-component-lifecycle)or [Afterjs's _getInitialProps_](https://github.com/jaredpalmer/after.js/blob/master/README.md#getinitialprops-ctx--data))
+* A Page / Route based approach ([NextJs's getInitialProps ](https://nextjs.org/docs#fetching-data-and-component-lifecycle)or [Afterjs's _getInitialProps_](https://github.com/jaredpalmer/after.js/blob/master/README.md#getinitialprops-ctx--data))
 * Component tree based approach ([Apollo's _getDataFromTree_](https://www.apollographql.com/docs/react/features/server-side-rendering#getDataFromTree))
 
 The first approach relies heavily on using a router that works inside and outside the react world. Firstly, we would define Pages or Routes, ie, React components that will be rendered when a particular url is fetched. This can be done in many ways, eg, [NextJs's uses a filename convention](https://nextjs.org/docs), or we could just have a routes object where urls are mapped to specific components.
 
 It is important to note that we will only take into account data dependencies of pages (or routes), child components will be ignored. This is also highlighted on [NextJs's doc](https://nextjs.org/docs#fetching-data-and-component-lifecycle):
 
-> _Note:_ `getInitialProps` _can **not** be used in children components. Only in_ `_pages_`_._
+> _Note:_ `getInitialProps` _can **not** be used in children components. Only in_ `pages`_._
 
 So, the idea will be something like the following:
 
@@ -177,6 +177,10 @@ So, the idea will be something like the following:
 2. Determine the pages that will be rendered for that url
 3. Call `getInitialProps` (or the data fetching method of the page)
 
-On client side, we'll have to add some code to run the `getInitialProps` method (something like the `[After](https://github.com/jaredpalmer/after.js/blob/master/src/After.tsx)`[ component does in afterjs](https://github.com/jaredpalmer/after.js/blob/master/src/After.tsx)).
+We'll start writing a _routes_ file in order to define what components will be rendered with each urls:
+
+We'll use [React Router's ](https://reacttraining.com/react-router/web/api/matchPath)`matchPath` function to determine what pages will be rendered.
+
+On client side, we'll have to add some code to run the `getInitialProps` method (something like the [After component does in afterjs](https://github.com/jaredpalmer/after.js/blob/master/src/After.tsx)).
 
 For the sake of simplicity, we'll follow a slightly different approach than _afterjs_. On the `componentDidMount` and `componentWillReceiveProps` methods, we'll just call `getInitialProps` .
