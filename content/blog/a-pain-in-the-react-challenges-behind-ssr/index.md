@@ -199,12 +199,10 @@ const routes = [
 export default routes;
 ```
 
-Next step is to determine what pages match the requested url. To achieve this, we'll use [React Router's ](https://reacttraining.com/react-router/web/api/matchPath)`matchPath` function to determine what pages will be rendered.
+Next step is to determine what pages match the requested url. To achieve this, we'll use [React Router's ](https://reacttraining.com/react-router/web/api/matchPath)`matchPath` function:
 
 ```js
 server
-  .disable('x-powered-by')
-  .use(express.static(process.env.RAZZLE_PUBLIC_DIR))
   .get('/*', async (req, res) => {
     // Requested url
     const url = req.url;
@@ -217,7 +215,7 @@ server
       return match && getInitialProps
         ? getInitialProps()
         : undefined;
-    }))
+    }));
   
     // render
   });
