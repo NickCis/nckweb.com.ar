@@ -249,5 +249,11 @@ class Home extends Component {
     );
   }
 }
-
 ```
+
+[Full example can be found here](https://github.com/NickCis/a-pain-in-the-react-challenges-behind-ssr/tree/master/2-determining-data-dependencies).
+
+Although, we are able to determine, on client and server, what data dependencies we need to fetch, we haven't actually fetched any data nor shared across client and server!
+
+## Actually fetching data
+
