@@ -255,7 +255,7 @@ class Home extends Component {
 
 On the other hand, Apollo GraphQL uses a tree based approach. This way of determining data dependencies is more declarative, as any component (not only _pages_) could declare them. 
 
-![](./apollo-tree.jpeg "A React Component Tree - by Lewis Chung")
+![A React Component Tree - by Lewis Chung](./apollo-tree.jpeg)
 
 The drawback of this solution is that is rather complex, I won't enter into too much details, as [Apollo's Blog has a great post explaining how it works](https://blog.apollographql.com/how-server-side-rendering-works-with-react-apollo-20f31b0c7348). To make a short summary, [Apollo has a function called getDataFromTree](https://www.apollographql.com/docs/react/features/server-side-rendering) which walks through the entire React tree checking if components need to fetch information. Before the `2.5` branch, Apollo had a custom [walkTree method](https://github.com/apollographql/react-apollo/blob/apollo-client-2.0/src/getDataFromTree.ts#L25) which somehow reimplements React rendering algorithm (this is explained on the mentioned apollo's blog post). Now a days (since Apollo `2.5`), the [getDataFromTree method uses React-Dom's renderToStaticMarkup ](https://github.com/apollographql/react-apollo/blob/release-2.5.0/src/getDataFromTree.ts#L98) under the hood. The [Query component](https://github.com/apollographql/react-apollo/blob/release-2.5.0/src/Query.tsx#L246) only renders its children when data has been fetched. `renderToStaticMarkup` is called until no more information is needed to be fetched.
 
