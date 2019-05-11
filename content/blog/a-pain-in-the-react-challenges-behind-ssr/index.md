@@ -160,6 +160,8 @@ _For the following examples we will use razzle to reduce the needed boilerplate.
 
 As I have said before, React on server behaves differently than on client. When calling [_renderToString_](https://reactjs.org/docs/react-dom-server.html#rendertostring)_,_ we are doing a sync one pass render. This means that in order to generate the complete page we will have to figure out how to fetch all the needed data before rendering.
 
+![](./render-comparison.png)
+
 There are mainly two approaches to solve this problem:
 
 * A Page / Route based approach ([NextJs's getInitialProps ](https://nextjs.org/docs#fetching-data-and-component-lifecycle)or [Afterjs's _getInitialProps_](https://github.com/jaredpalmer/after.js/blob/master/README.md#getinitialprops-ctx--data))
@@ -253,7 +255,7 @@ class Home extends Component {
 
 [Full example can be found here](https://github.com/NickCis/a-pain-in-the-react-challenges-behind-ssr/tree/master/2-determining-data-dependencies).
 
-On the other hand, Apollo GraphQL uses a tree based approach. This way of determining data dependencies is more declarative, as any component (not only _pages_) could declare them. 
+On the other hand, Apollo GraphQL uses a tree based approach. This way of determining data dependencies is more declarative, as any component (not only _pages_) could have them.
 
 ![A React Component Tree - by Lewis Chung](./apollo-tree.jpeg)
 
