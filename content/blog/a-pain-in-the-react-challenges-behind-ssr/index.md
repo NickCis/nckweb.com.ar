@@ -177,9 +177,51 @@ So, the idea will be something like the following:
 2. Determine the pages that will be rendered for that url
 3. Call `getInitialProps` (or the data fetching method of the page)
 
-We'll start writing a _routes_ file in order to define what components will be rendered with each urls:
+We'll start writing a _routes_ file in order to define what pages are rendered with each urls:
 
-We'll use [React Router's ](https://reacttraining.com/react-router/web/api/matchPath)`matchPath` function to determine what pages will be rendered.
+```js
+import Home from './Home';
+import Other from './Other';
+
+const routes = [
+  {
+    path: '/',
+    component: Home,
+    exact: true
+  },
+  {
+    path: '/other',
+    component: Other,
+    exact: true
+  }
+];
+
+export default routes;
+```
+
+Next step is to determine what pages match the requested url. To achieve this, we'll use [React Router's ](https://reacttraining.com/react-router/web/api/matchPath)`matchPath` function to determine what pages will be rendered.
+
+```js
+server
+  .disable('x-powered-by')
+  .use(express.static(process.env.RAZZLE_PUBLIC_DIR))
+  .get('/*', async (req, res) => {
+    // Requested url
+    const url = req.url;
+
+    // XXX: should handle exceptions!
+    await Promise.all(routes.map(route => {
+      const match = matchPath(url, route);
+      const { getInitialProps } = route.component;
+
+      return match && getInitialProps
+        ? getInitialProps()
+        : undefined;
+    }))
+  
+    // render
+  });
+```
 
 On client side, we'll have to add some code to run the `getInitialProps` method (something like the [After component does in afterjs](https://github.com/jaredpalmer/after.js/blob/master/src/After.tsx)).
 
