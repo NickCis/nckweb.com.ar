@@ -148,7 +148,7 @@ module.exports = [
 ];
 ```
 
-I won't enter into details about babel presets, [babel-preset-env](https://babeljs.io/docs/en/babel-preset-env) is the easiest way to support new ECMA syntax and [babel-preset-react](https://babeljs.io/docs/en/babel-preset-react) allow us to write jsx.
+I won't enter into details about babel presets: [babel-preset-env](https://babeljs.io/docs/en/babel-preset-env) is the easiest way to support new ECMA syntax and [babel-preset-react](https://babeljs.io/docs/en/babel-preset-react) allow us to write jsx.
 
 [Full example can be found here](https://github.com/NickCis/a-pain-in-the-react-challenges-behind-ssr/tree/master/1-webpack-ssr).
 
@@ -167,7 +167,7 @@ There are mainly two approaches to solve this problem:
 * A Page / Route based approach ([NextJs's getInitialProps ](https://nextjs.org/docs#fetching-data-and-component-lifecycle)or [Afterjs's _getInitialProps_](https://github.com/jaredpalmer/after.js/blob/master/README.md#getinitialprops-ctx--data))
 * Component tree based approach ([Apollo's _getDataFromTree_](https://www.apollographql.com/docs/react/features/server-side-rendering#getDataFromTree))
 
-The first approach relies heavily on using a router that works inside and outside the react world. Firstly, we would define Pages or Routes, ie, React components that will be rendered when a particular url is fetched. This can be done in many ways, eg, [NextJs's uses a filename convention](https://nextjs.org/docs), or we could just have a routes object where urls are mapped to specific components.
+The first one relies heavily on using a router that works inside and outside the react world. Firstly, we would define Pages or Routes, ie, React components that will be rendered when a particular url is fetched. This can be done in many ways, eg, [NextJs's uses a filename convention](https://nextjs.org/docs), or we could just have a routes object where urls are mapped to specific components.
 
 It is important to note that we will only take into account data dependencies of pages (or routes), child components will be ignored. This is also highlighted on [NextJs's doc](https://nextjs.org/docs#fetching-data-and-component-lifecycle):
 
@@ -223,6 +223,8 @@ server
   });
 ```
 
+**Note:** Although, React router has a package which does this job, [react-router-config](https://www.npmjs.com/package/react-router-config), to keep things simple the example won't use it.
+
 On client side, we'll have to add some code to run the `getInitialProps` method (something like the [After component does in afterjs](https://github.com/jaredpalmer/after.js/blob/master/src/After.tsx)).
 
 For the sake of simplicity, we'll follow a slightly different approach than _afterjs_. On the `componentDidMount` and `componentDidUpdate` methods, we'll just call `getInitialProps` :
@@ -265,7 +267,7 @@ Although, we are able to determine, on client and server, what data dependencies
 
 ## Actually fetching data
 
-On the previous step, we've detected what data is needed, but we haven't developed a way to actually fetch that data. Going to the basics, fetching data will be a simple ajax call (calling [fetch](https://developer.mozilla.org/en-US/docs/Web/API/Fetch_API) on client side and a [node compatible fetch implementation](https://www.npmjs.com/package/node-fetch) on server side). But, we must bare in mind that on the client side fetch does some jobs under the hood:
+On the previous step, we've detected what data is needed, but we haven't developed a way to actually fetch that data. Going to the basics, fetching data will be a simple ajax call (calling [fetch](https://developer.mozilla.org/en-US/docs/Web/API/Fetch_API) on client side and a [node compatible fetch implementation](https://www.npmjs.com/package/node-fetch) on server side). But, we must bare in mind that on the client side, fetch does some extra jobs under the hood:
 
 ```js
 const fetch = require('node-fetch');
@@ -275,9 +277,9 @@ fetch('/data');
 // UnhandledPromiseRejectionWarning: TypeError: Only absolute URLs are supported
 ```
 
-In addition, the client stores and sends http headers (eg.: _Cookie_) that we'll need to forward while doing SSR.
+Apart from the absolute url, the client stores and sends http headers (eg.: _Cookie_) that we'll need to forward while doing SSR.
 
-![](./browser-node.png)
+![A nice drawing](./browser-node.png)
 
 Both APIs,  [NextJs getInitialProps](https://nextjs.org/docs#fetching-data-and-component-lifecycle) and [AfterJs getInitialProps](https://github.com/jaredpalmer/after.js#getinitialprops-ctx--data), implement a similar interface.  This method is called with a bunch of parameters:
 
@@ -285,7 +287,7 @@ Both APIs,  [NextJs getInitialProps](https://nextjs.org/docs#fetching-data-and-c
 * `res`: The response object (only server side)
 * Location (url) related information
 
-The problem here is that we are left alone to resolve the differences between data fetching between server and client. This often led to use a package such as [fetch-ponyfill](https://www.npmjs.com/package/fetch-ponyfill) in order to have an isomorphic fetching function which could result in sending unnecessary code to the client and adding a base url (and forwarding request headers) if the `req` param is present:
+The problem here is that we are left alone when resolving the differences between server and client. Next nor AfterJs provide us a way to solve this. This often led to use a package such as [fetch-ponyfill](https://www.npmjs.com/package/fetch-ponyfill) in order to have an isomorphic fetching function [which could result in sending unnecessary code to the client](https://arunoda.me/blog/ssr-and-server-only-modules) and adding a base url (also forwarding request headers) if the `req` param is present:
 
 ```js
 // ...
@@ -297,10 +299,45 @@ Component.getInitialProps = async ({ req }) => {
   let url = '/data';
   let opts = {};
   if (req) {
-    url = `${req.protocol}://${req.headers.host}/${url}`;
+    url = `${req.protocol}://${req.headers.host}${url}`;
     opts.headers = req.headers;
   }
   
   return fetch(url, opts);
 };
+```
+
+**Note:** The simplest way of replicating the ajax request on server side is doing a request to itself, that's why we are prepending the host to the requested url. This isn't the most efficient solution, but it just works.
+
+Well, so in order to provide a unified data fetching api, we'll slightly modify the `getInitialProps` api adding a `fetch` function. On server side, this function will take care of adding the base url stuff and headers, while on client side, it will be the default `fetch`.
+
+```js
+import nodeFetch from 'node-fetch';
+
+//...
+
+server
+  // ...
+  .get('/*', async (req, res) => {
+    const fetch = (url, opts = {}) =>
+      nodeFetch(`${req.protocol}://${req.headers.host}${url}`, {
+        ...opts,
+        headers: {
+          ...req.headers,
+          ...opts.headers
+        }
+      });
+
+    // Requested url
+    const url = req.url;
+
+    // XXX: should handle exceptions!
+    await Promise.all(routes.map(route => {
+      const match = matchPath(url, route);
+      const { getInitialProps } = route.component;
+
+      return match && getInitialProps
+        ? getInitialProps({ fetch, match })
+        : undefined;
+    }));
 ```
