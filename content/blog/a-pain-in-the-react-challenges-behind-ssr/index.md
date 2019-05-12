@@ -450,4 +450,10 @@ server
 });
 ```
 
-Going back to the example ([you can download the full example here](https://github.com/NickCis/a-pain-in-the-react-challenges-behind-ssr/tree/master/3-actually-fetching-data)):
+Going back to the example ([you can download the full example here](https://github.com/NickCis/a-pain-in-the-react-challenges-behind-ssr/tree/master/3-actually-fetching-data)), if we run it we'll a splash:
+
+// Todo Gif
+
+Well, although, we are fetching data on server side, we are not sharing it with the client!.
+
+## Sharing state
