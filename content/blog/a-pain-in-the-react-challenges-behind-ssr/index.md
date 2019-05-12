@@ -279,4 +279,28 @@ In addition, the client stores and sends http headers (eg.: _Cookie_) that we'll
 
 ![](./browser-node.png)
 
-If we check [NextJs getInitialProps](https://nextjs.org/docs#fetching-data-and-component-lifecycle) and [AfterJs getInitialProps](https://github.com/jaredpalmer/after.js#getinitialprops-ctx--data)
+Both APIs,  [NextJs getInitialProps](https://nextjs.org/docs#fetching-data-and-component-lifecycle) and [AfterJs getInitialProps](https://github.com/jaredpalmer/after.js#getinitialprops-ctx--data), implement a similar interface.  This method is called with a bunch of parameters:
+
+* `req`: The request object (only server side)
+* `res`: The response object (only server side)
+* Location (url) related information
+
+The problem here is that we are left alone to resolve the differences between data fetching between server and client. This often led to use a package such as [fetch-ponyfill](https://www.npmjs.com/package/fetch-ponyfill) in order to have an isomorphic fetching function which could result in sending unnecessary code to the client and adding a base url (and forwarding request headers) if the `req` param is present:
+
+```js
+// ...
+const fetch = require('fetch-ponyfill')();
+
+const Component = () => /* ... */;
+
+Component.getInitialProps = async ({ req }) => {
+  let url = '/data';
+  let opts = {};
+  if (req) {
+    url = `${req.protocol}://${req.headers.host}/${url}`;
+    opts.headers = req.headers;
+  }
+  
+  return fetch(url, opts);
+};
+```
