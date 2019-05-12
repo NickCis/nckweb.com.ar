@@ -341,3 +341,87 @@ server
         : undefined;
     }));
 ```
+
+While on client:
+
+```js
+class Home extends Component {
+  static async getInitialProps({ fetch }) {
+    return fetch('/data')
+      .then(r => r.json())
+  }
+
+  // ...
+
+  componentDidMount() {
+    Home.getInitialProps({
+      fetch,
+      match: this.props.match,
+    }).then(r => this.setState(r));
+  }
+
+  componentDidUpdate(prevProps){
+    // Only fetch data if location has changed
+    if (this.props.location != prevProps.location)
+      Home.getInitialProps({
+        fetch,
+        match: this.props.match,
+      }).then(r => this.setState(r));
+  }
+  
+  // ...
+}
+```
+
+This concept of not using a global `fetch` function and relying on the set up to differentiate implementation between server and client could also be used if we have a redux stack. When setting up the store, we could add an enhancer (plugin) which provides the same interface for data fetching but different implementations. A quick example can be achieved using [redux-thunk](https://github.com/reduxjs/redux-thunk):
+
+```js
+// createStore.js
+import { createStore, applyMiddleware } from 'redux';
+import thunk from 'redux-thunk';
+import rootReducer from './reducers/index';
+
+export default function (fetch) {
+  return createStore(
+    rootReducer,
+    applyMiddleware(thunk.withExtraArgument(fetch))
+  );
+}
+
+// client
+import createStore from './createStore';
+
+const store = createStore(fetch);
+
+// server
+import createStore from './createStore';
+
+server
+  // ...
+  .get('/*', async (req, res) => {
+    const fetch = (url, opts = {}) =>
+      nodeFetch(`${req.protocol}://${req.headers.host}${url}`, {
+        ...opts,
+        headers: {
+          ...req.headers,
+          ...opts.headers
+        }
+      });
+    const store = createStore(fetch);
+  })
+```
+
+On any action creator, we will use the third argument as the `fetch` function:
+
+```js
+const actionCreator = (dispatch, getState, fetch) => {
+  dispatch(loading());
+  
+  return fetch('/data')
+    .then(data => {
+      dispatch(receivedData(data));
+    });
+}
+```
+
+Going back to the example.
