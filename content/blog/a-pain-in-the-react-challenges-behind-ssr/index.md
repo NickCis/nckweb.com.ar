@@ -450,4 +450,4 @@ server
 });
 ```
 
-Going back to the example.
+Going back to the example ([you can download the full example here](https://github.com/NickCis/a-pain-in-the-react-challenges-behind-ssr/tree/master/3-actually-fetching-data)):
