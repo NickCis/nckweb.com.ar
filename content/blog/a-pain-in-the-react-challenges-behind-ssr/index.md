@@ -278,3 +278,5 @@ fetch('/data');
 In addition, the client stores and sends http headers (eg.: _Cookie_) that we'll need to forward while doing SSR.
 
 ![](./browser-node.png)
+
+If we check [NextJs getInitialProps](https://nextjs.org/docs#fetching-data-and-component-lifecycle) and [AfterJs getInitialProps](https://github.com/jaredpalmer/after.js#getinitialprops-ctx--data)
