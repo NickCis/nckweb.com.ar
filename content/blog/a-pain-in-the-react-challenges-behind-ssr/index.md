@@ -373,7 +373,7 @@ class Home extends Component {
 }
 ```
 
-This concept of not using a global `fetch` function and relying on the set up to differentiate implementation between server and client could also be used if we have a redux stack. When setting up the store, we could add an enhancer (plugin) which provides the same interface for data fetching but different implementations. A quick example can be achieved using [redux-thunk](https://github.com/reduxjs/redux-thunk):
+This concept of not using a global `fetch` function and relying on the set up to differentiate implementation between server and client could also be used if we have a redux stack. When setting up the store, we could add a [middleware](https://redux.js.org/advanced/middleware) which provides the same interface for data fetching but different implementations. A quick example can be achieved using [redux-thunk](https://github.com/reduxjs/redux-thunk) (**Note:** [we could also write a custom middleware and dispatch custom actions](https://redux.js.org/recipes/reducing-boilerplate#async-action-creators)):
 
 ```js
 // createStore.js
@@ -408,6 +408,8 @@ server
         }
       });
     const store = createStore(fetch);
+
+    // ...
   })
 ```
 
@@ -422,6 +424,30 @@ const actionCreator = (dispatch, getState, fetch) => {
       dispatch(receivedData(data));
     });
 }
+```
+
+If we check [Apollo's GraphQL approach](https://www.apollographql.com/docs/react/features/server-side-rendering#server-initialization), we will se a similar solution:
+
+```js
+server
+  // ...
+  .get('/*', (req, res) => {
+    const client = new ApolloClient({
+      ssrMode: true,
+      // Remember that this is the interface the SSR server will use to connect to the
+      // API server, so we need to ensure it isn't firewalled, etc
+      link: createHttpLink({
+        uri: `${req.protocol}://${req.headers.host}`,
+        credentials: 'same-origin',
+        headers: {
+          cookie: req.header('Cookie'),
+        },
+      }),
+      cache: new InMemoryCache(),
+    });
+
+    // ...
+});
 ```
 
 Going back to the example.
