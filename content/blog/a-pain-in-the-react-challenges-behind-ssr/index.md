@@ -485,9 +485,9 @@ class Home extends Component {
 }
 ```
 
-_(Yes, we are not reacting to initialState prop change which is considered an anti pattern in react world, but the idea of this example is to portrait the concepts which makes ssr work, not developing a production ready code. Also, initialState should be inmutable, so, taking that precondition there should be no problem)._
+_(Yes, we are not reacting to initialState prop change which is considered an anti pattern in react world, but the idea of this example is to portrait the concepts which makes ssr work, not developing a production ready code. Also, initialState should be inmutable, so, taking that precondition here should not be a problem)._
 
-The parent component should also pass the initial state:
+The parent component, also, has to pass the initial state:
 
 ```js
 const App = ({ initialState }) => (
@@ -509,7 +509,27 @@ const App = ({ initialState }) => (
 );
 ```
 
-The `initialState` will be a dictionary whose keys are 
+Although `initialState` will only bring data of one component (will only have the value of the resolved promise created by the matched component's `getInitialProps`), it's a dictionary whose key is the url for the fetched data. The reason behind this is just simplifying the code needed to access that data: `initialState[props.location.pathname]` will return the data if it is the server side fetched component or it will return `undefined` if it isn't.
+
+As far as the server is concerned, we will store the resolved value and pass it to the `App`component:
+
+```js
+server
+  .get('/*', async (req, res) => {
+    // ...
+    const initialState = {
+      [url]: await promise,
+    };
+    const markup = renderToString(
+      <StaticRouter location={url}>
+        <App initialState={initialState} />
+      </StaticRouter>
+    );
+
+    // ...
+  });
+```
+
 
 [The full example can be found here](https://github.com/NickCis/a-pain-in-the-react-challenges-behind-ssr/tree/master/4-sharing-state)
 
