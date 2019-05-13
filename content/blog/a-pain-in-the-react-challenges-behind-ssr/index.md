@@ -426,7 +426,7 @@ const actionCreator = (dispatch, getState, fetch) => {
 }
 ```
 
-If we check [Apollo's GraphQL approach](https://www.apollographql.com/docs/react/features/server-side-rendering#server-initialization), we will se a similar solution:
+If we check [Apollo's GraphQL approach](https://www.apollographql.com/docs/react/features/server-side-rendering#server-initialization), we will see a similar solution:
 
 ```js
 server
@@ -450,10 +450,52 @@ server
 });
 ```
 
-Going back to the example ([you can download the full example here](https://github.com/NickCis/a-pain-in-the-react-challenges-behind-ssr/tree/master/3-actually-fetching-data)), if we run it we'll a splash:
+Going back to the example ([you can download the full example here](https://github.com/NickCis/a-pain-in-the-react-challenges-behind-ssr/tree/master/3-actually-fetching-data)), if we run it we'll have a splash:
 
 // Todo Gif
 
-Well, although, we are fetching data on server side, we are not sharing it with the client!.
+Well, although, we are fetching data on server side, we are not sharing it with the client nor using it on the server!.
 
 ## Sharing state
+
+![](./sharing-state.png)
+
+We've managed to sort out how to detect what data request we need, actually fetched that data, but we aren't sharing that state between server and client.
+
+First of all, we'll have to develop a way to use the initial state generated on the server. For the component, this means initializing its state with a prop instead of an empty object:
+
+```js
+class Home extends Component {
+  // ...
+
+  state = this.props.initialState || {};
+
+  // ...
+}
+```
+
+The parent component should also pass the initial state:
+
+```js
+const App = ({ initialState }) => (
+  <Switch>
+    {routes.map(({ path, exact, component: Component }) => (
+        <Route
+          key={path}
+          path={path}
+          exact={exact}
+          render={props => (
+            <Component
+              initialState={initialState[props.location.pathname]}
+              {...props}
+            />
+          )}
+        />
+    ))}
+  </Switch>
+);
+```
+
+[The full example can be found here](https://github.com/NickCis/a-pain-in-the-react-challenges-behind-ssr/tree/master/4-sharing-state)
+
+***
