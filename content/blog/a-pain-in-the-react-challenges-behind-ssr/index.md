@@ -208,16 +208,20 @@ server
   .get('/*', async (req, res) => {
     // Requested url
     const url = req.url;
+    let promise;
 
-    // XXX: should handle exceptions!
-    await Promise.all(routes.map(route => {
+    routes.some(route => {
       const match = matchPath(url, route);
       const { getInitialProps } = route.component;
 
-      return match && getInitialProps
-        ? getInitialProps()
-        : undefined;
-    }));
+      if (match && getInitialProps)
+        promise = getInitialProps();
+
+      return !!match;
+    });
+
+    // XXX: should handle exceptions!
+    await promise;
   
     // render
   });
@@ -330,16 +334,23 @@ server
 
     // Requested url
     const url = req.url;
+    let promise;
 
-    // XXX: should handle exceptions!
-    await Promise.all(routes.map(route => {
+    routes.some(route => {
       const match = matchPath(url, route);
       const { getInitialProps } = route.component;
 
-      return match && getInitialProps
-        ? getInitialProps({ fetch, match })
-        : undefined;
-    }));
+      if (match && getInitialProps)
+        promise = getInitialProps({ fetch, match });
+
+      return !!match;
+    });
+
+    // XXX: should handle exceptions!
+    await promise;
+    
+    // ...
+  });
 ```
 
 While on client:
@@ -474,6 +485,8 @@ class Home extends Component {
 }
 ```
 
+_(Yes, we are not reacting to initialState prop change which is considered an anti pattern in react world, but the idea of this example is to portrait the concepts which makes ssr work, not developing a production ready code. Also, initialState should be inmutable, so, taking that precondition there should be no problem)._
+
 The parent component should also pass the initial state:
 
 ```js
@@ -495,6 +508,8 @@ const App = ({ initialState }) => (
   </Switch>
 );
 ```
+
+The `initialState` will be a dictionary whose keys are 
 
 [The full example can be found here](https://github.com/NickCis/a-pain-in-the-react-challenges-behind-ssr/tree/master/4-sharing-state)
 
