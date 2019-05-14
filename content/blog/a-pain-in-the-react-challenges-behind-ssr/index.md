@@ -1,9 +1,12 @@
 ---
-date: 2019-03-05T16:42:19.000+00:00
+date: 2019-05-15T11:00:00-03:00
 title: 'A pain in the react: Challenges behind SSR'
-description: ''
-tags: react, ssr, webpack, javascript
-published: false
+description: In this post I'll try to show what, in my opinion, are the current pain
+  points on the common ways to do server side rendering in React, comparing existing
+  solutions in a didactic way. We will talk about how frameworks such as RazzleJs,
+  NextJs, Apollo GraphQL work and the problems of implementing them for ssr.
+tags: reactjs, ssr, data, rendering, babel, webpack, fetching, afterjs, nextjs, graphql
+published: true
 canonical_url: ''
 
 ---
