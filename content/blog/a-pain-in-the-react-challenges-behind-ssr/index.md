@@ -35,7 +35,7 @@ const server = http.createServer((req, res) => {
 server.listen(8000);
 ```
 
-Well, sadly this will not work. Mainly because we are used to writing [_jsx_](https://reactjs.org/docs/jsx-in-depth.html) in React, and we tend to forget that it isn't valid javascript. We could change the `<App />`  line to use `[React.createElement](https://reactjs.org/docs/react-api.html#createelement)` but that approach wouldn't escale for all the `App.js` file, the rest of the components and _css_ files (it gets worse if a css pre-processor is used). So, here comes the first problem: _The need of transpiling server code_.
+Well, sadly this will not work. Mainly because we are used to writing [_jsx_](https://reactjs.org/docs/jsx-in-depth.html) in React, and we tend to forget that it isn't valid javascript. We could change the `<App />`  line to use [`React.createElement`](https://reactjs.org/docs/react-api.html#createelement) but that approach wouldn't escale for all the `App.js` file, the rest of the components and _css_ files (it gets worse if a css pre-processor is used). So, here comes the first problem: _The need of transpiling server code_.
 
 ![Won't somebody please think of the data?](./wont-think-data.png)
 
