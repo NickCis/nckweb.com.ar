@@ -7,11 +7,11 @@ published: false
 canonical_url: ''
 
 ---
-_tl;dr In this post I'll try to show what, in my opnion, are the current pain points on the common ways to do ssr in React, comparing existing solutions in a didactic way._
+_tl;dr In this post I'll try to show what, in my opinion, are the current pain points on the common ways to do ssr in React, comparing existing solutions in a didactic way._
 
 First of all, what's SSR?. SSR is the acronym for _server side rendering_. On a high level, this means generating the complete web page on the server without having to rely on the client side javascript.
 
-We won't enter on full details of why you'd want to do this, but, it can be mainly motivated by  [SEO concerns](https://www.youtube.com/watch?v=PFwUbgvpdaQ), [accessibility](https://www.svtplay.se/klipp/16183939/reactjs-meetup-svt---english-subtitles?position=173) or just [performance](https://developers.google.com/web/updates/2019/02/rendering-on-the-web).
+We won't enter into details of why we'd want to do this, but, it can be mainly motivated by  [SEO concerns](https://www.youtube.com/watch?v=PFwUbgvpdaQ), [accessibility](https://www.svtplay.se/klipp/16183939/reactjs-meetup-svt---english-subtitles?position=173) or just [performance](https://developers.google.com/web/updates/2019/02/rendering-on-the-web).
 
 ## Problems behind SSR
 
@@ -32,7 +32,7 @@ const server = http.createServer((req, res) => {
 server.listen(8000);
 ```
 
-Well, sadly this will not work. Mainly because we are used to writing [_jsx_](https://reactjs.org/docs/jsx-in-depth.html) in React, and we tend to forget that it isn't valid javascript. We could change the `<App />`  line to use `React.createElement` but that approach wouldn't escale for all the `App.js` file, the rest of the components and _css_ files (it gets worse if a css pre-processor is used). So, here comes the first problem: _The need of transpiling server code_.
+Well, sadly this will not work. Mainly because we are used to writing [_jsx_](https://reactjs.org/docs/jsx-in-depth.html) in React, and we tend to forget that it isn't valid javascript. We could change the `<App />`  line to use `[React.createElement](https://reactjs.org/docs/react-api.html#createelement)` but that approach wouldn't escale for all the `App.js` file, the rest of the components and _css_ files (it gets worse if a css pre-processor is used). So, here comes the first problem: _The need of transpiling server code_.
 
 ![Won't somebody please think of the data?](./wont-think-data.png)
 
@@ -45,7 +45,7 @@ To round up, we'll have to deal with the following issues:
 1. Generating valid JS code for the server
 2. Determining data dependencies
 3. Actually fetching data
-4. Sharing state _(do not forget to prevent double fetch!)_
+4. Sharing state
 
 ## Generating valid JS code for the server
 
@@ -66,7 +66,7 @@ Being pedantic, we should not need webpack, babel could be the one and only tool
 
 The problem of _the one tool to rule them all approach (ie. only babel)_ is that generally webpack is doing more tasks that only transpiling. For example, are we using css modules?, so, webpack is doing a name mangling of the classes to renerate unique names via [the css loader](https://github.com/webpack-contrib/css-loader). Are we using build time constants?, we are probably defining them with [webpack's define plugin](https://webpack.js.org/plugins/define-plugin/). There are more examples of tasks that webpack is performing (static files, etc, etc), but for each of these tasks we'll have to find a babel preset or plugin that performs this job.
 
-If we stick with the webpack path, although, we won't have the same configuration file for client and server, both files will be very similar, sharing most of its code. Also, most webpack loaders have a sort of explanation of how to use them for server side rendering (for example, css loader has the [_exportOnlyLocals_ option](https://github.com/webpack-contrib/css-loader#exportonlylocals) ).
+If we stick with the webpack path, although we won't have the same configuration file for client and server, both files will be very similar, sharing most of its code. Also, most webpack loaders have a sort of explanation of how to use them for server side rendering (for example, css loader has the [_exportOnlyLocals_ option](https://github.com/webpack-contrib/css-loader#exportonlylocals) ).
 
 Well, returning to our objective, we'll need to add some packages:
 
@@ -152,7 +152,7 @@ I won't enter into details about babel presets: [babel-preset-env](https://babel
 
 [Full example can be found here](https://github.com/NickCis/a-pain-in-the-react-challenges-behind-ssr/tree/master/1-webpack-ssr).
 
-So, are we done?. The quick answer is no. This example was the minimum to get React server side rendering running, it lacks of many features (no css, no static files, no source map, no production optimization, no vendor bundle, no code spliting, etc). Although, we could start building a full project from this, it isn't recommended. Now a days, we probably will use a tool that abstract all this configuration, such as [razzle](https://github.com/jaredpalmer/razzle), [next.js](https://github.com/zeit/next.js) or [react-server](https://github.com/redfin/react-server). The idea of the example was to understand, on a higher level, how these tools work under the hood.
+So, have we finished?. The quick answer is no. This example was the minimum to get React server side rendering running, it lacks of many features (no css, no static files, no source map, no production optimization, no vendor bundle, no code spliting, etc). Although we could start building a full project from this, I wouldn't recommend it. Now a days, we will probably use a tool that solves all this configuration, such as [razzle](https://github.com/jaredpalmer/razzle), [next.js](https://github.com/zeit/next.js) or [react-server](https://github.com/redfin/react-server). The idea of the example was to understand, on a higher level, how these tools work under the hood.
 
 _For the following examples we will use razzle to reduce the needed boilerplate._
 
@@ -265,7 +265,9 @@ On the other hand, Apollo GraphQL uses a tree based approach. This way of determ
 
 ![A React Component Tree - by Lewis Chung](./apollo-tree.jpeg)
 
-The drawback of this solution is that is rather complex, I won't enter into too much details, as [Apollo's Blog has a great post explaining how it works](https://blog.apollographql.com/how-server-side-rendering-works-with-react-apollo-20f31b0c7348). To make a short summary, [Apollo has a function called getDataFromTree](https://www.apollographql.com/docs/react/features/server-side-rendering) which walks through the entire React tree checking if components need to fetch information. Before the `2.5` branch, Apollo had a custom [walkTree method](https://github.com/apollographql/react-apollo/blob/apollo-client-2.0/src/getDataFromTree.ts#L25) which somehow reimplements React rendering algorithm (this is explained on the mentioned apollo's blog post). Now a days (since Apollo `2.5`), the [getDataFromTree method uses React-Dom's renderToStaticMarkup ](https://github.com/apollographql/react-apollo/blob/release-2.5.0/src/getDataFromTree.ts#L98) under the hood. The [Query component](https://github.com/apollographql/react-apollo/blob/release-2.5.0/src/Query.tsx#L246) only renders its children when data has been fetched. `renderToStaticMarkup` is called until no more information is needed to be fetched.
+The drawback of this solution is that is rather complex _(we are kind of doing a pre render to get data dependencies)_, I won't enter into too much details, as [Apollo's Blog has a great post explaining how it works](https://blog.apollographql.com/how-server-side-rendering-works-with-react-apollo-20f31b0c7348). To make a short summary, [Apollo has a function called getDataFromTree](https://www.apollographql.com/docs/react/features/server-side-rendering) which walks through the entire React tree checking if components need to fetch information. Before the `2.5` branch, Apollo had a custom [walkTree method](https://github.com/apollographql/react-apollo/blob/apollo-client-2.0/src/getDataFromTree.ts#L25) which somehow reimplements React rendering algorithm (this is explained on the mentioned apollo's blog post).
+
+Now a days (since Apollo `2.5`), the [getDataFromTree method uses React-Dom's renderToStaticMarkup ](https://github.com/apollographql/react-apollo/blob/release-2.5.0/src/getDataFromTree.ts#L98) under the hood. The [Query component](https://github.com/apollographql/react-apollo/blob/release-2.5.0/src/Query.tsx#L246) only renders its children when data has been fetched. And `renderToStaticMarkup` is called until no more information is needed to be fetched. So, Apollo calls `renderToStaticMarkup` to collect all the promises of the _query_ components. As those components, if they have a data dependency, don't render its children (bare in mind that fetched data might affect what the children are), `renderToStaticMarkup` has to be called when those promises are resolved. This process is repeated until no more promises are collected. This approach allows to declare data dependencies on any node in the react tree, but has the performance issue of having to render the tree many times.
 
 Although, we are able to determine, on client and server, what data dependencies we need to fetch, we haven't actually fetched any data nor shared across client and server!
 
@@ -565,5 +567,15 @@ hydrate(
 ```
 
 [The full example can be found here](https://github.com/NickCis/a-pain-in-the-react-challenges-behind-ssr/tree/master/4-sharing-state)
+
+## Are we done?
+
+Well, really, no. There are many things left aside. My objective while writing this post was to sort out my ideas of what are the problems while trying to implement a basic react server side rendering app, in a way which could also help somebody else!. Personally, I think that to understand how the tools I use work will allow me to use them in a better way or create out-of-the-box solutions for known problems.
+
+The examples of this post are far from being production code, just to name a few issues:
+
+* The `Home` component is the only one that does data fetching. All the needed logic is implemented on that component, clearly this won't scale. Data fetching code should be abstracted (it's not the component's concern!), perhaps [high order components](https://reactjs.org/docs/higher-order-components.html) _(eg:_ `_withInitialProps_`_)_ or [render props](https://reactjs.org/docs/render-props.html) could be use to encapsulate it. _(Well, probably for a non-didactic purpose, it's better to follow_ [_AfterJs_](https://github.com/jaredpalmer/after.js/blob/master/src/After.tsx#L20) _/_ [_NextJs_](https://github.com/zeit/next.js/blob/canary/packages/next-server/lib/router/router.ts#L284) _implementation and put that data-fetching implementation on the page's parent component)_ 
+* We haven't even talk about how to prevent fetching the same resource multiple times if more that one component request it (this would happen when a Apollo-like approach is followed or if multi-level pages, ie children pages, are implemented).
+* Avoid the network for local queries: on the examples we have being doing a `fetch` to `localhost`, but this is rather inefficient. [Apollo GraphQL has a section about how to do this](https://www.apollographql.com/docs/react/features/server-side-rendering#local-queries), but in the practice is rather hard to implement it.  
 
 ***
