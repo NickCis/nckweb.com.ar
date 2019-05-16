@@ -1,5 +1,5 @@
 ---
-date: 2019-05-15T11:00:00-03:00
+date: 2019-05-16T11:00:00-03:00
 title: 'A pain in the react: Challenges behind SSR'
 description: In this post I'll try to show what, in my opinion, are the current pain
   points on the common ways to do server side rendering in React, comparing existing
@@ -11,6 +11,8 @@ canonical_url: ''
 
 ---
 _tl;dr In this post I'll try to show what, in my opinion, are the current pain points on the common ways to do ssr in React, comparing existing solutions in a didactic way._
+
+![](./cover.png)
 
 First of all, what's SSR?. SSR is the acronym for _server side rendering_. On a high level, this means generating the complete web page on the server without having to rely on the client side javascript.
 
@@ -35,7 +37,7 @@ const server = http.createServer((req, res) => {
 server.listen(8000);
 ```
 
-Well, sadly this will not work. Mainly because we are used to writing [_jsx_](https://reactjs.org/docs/jsx-in-depth.html) in React, and we tend to forget that it isn't valid javascript. We could change the `<App />`  line to use [`React.createElement`](https://reactjs.org/docs/react-api.html#createelement) but that approach wouldn't escale for all the `App.js` file, the rest of the components and _css_ files (it gets worse if a css pre-processor is used). So, here comes the first problem: _The need of transpiling server code_.
+Well, sadly this will not work. Mainly because we are used to writing [_jsx_](https://reactjs.org/docs/jsx-in-depth.html) in React, and we tend to forget that it isn't valid javascript. We could change the `<App />`  line to use `[React.createElement](https://reactjs.org/docs/react-api.html#createelement)` but that approach wouldn't escale for all the `App.js` file, the rest of the components and _css_ files (it gets worse if a css pre-processor is used). So, here comes the first problem: _The need of transpiling server code_.
 
 ![Won't somebody please think of the data?](./wont-think-data.png)
 
@@ -577,9 +579,9 @@ Well, really, no. There are many things left aside. My objective while writing t
 
 The examples of this post are far from being production code, just to name a few issues:
 
-* The `Home` component is the only one that does data fetching. All the needed logic is implemented on that component, clearly this won't scale. Data fetching code should be abstracted (it's not the component's concern!), perhaps [high order components](https://reactjs.org/docs/higher-order-components.html) _(eg:_ `_withInitialProps_`_)_ or [render props](https://reactjs.org/docs/render-props.html) could be use to encapsulate it. _(Well, probably for a non-didactic purpose, it's better to follow_ [_AfterJs_](https://github.com/jaredpalmer/after.js/blob/master/src/After.tsx#L20) _/_ [_NextJs_](https://github.com/zeit/next.js/blob/canary/packages/next-server/lib/router/router.ts#L284) _implementation and put that data-fetching implementation on the page's parent component)_ 
+* The `Home` component is the only one that does data fetching. All the needed logic is implemented on that component, clearly this won't scale. Data fetching code should be abstracted (it's not the component's concern!), perhaps [high order components](https://reactjs.org/docs/higher-order-components.html) _(eg:_ `_withInitialProps_`_)_ or [render props](https://reactjs.org/docs/render-props.html) could be use to encapsulate it. _(Well, probably for a non-didactic purpose, it's better to follow_ [_AfterJs_](https://github.com/jaredpalmer/after.js/blob/master/src/After.tsx#L20) _/_ [_NextJs_](https://github.com/zeit/next.js/blob/canary/packages/next-server/lib/router/router.ts#L284) _implementation and put that data-fetching implementation on the page's parent component)_
 * We haven't even talk about how to prevent fetching the same resource multiple times if more that one component request it (this would happen when a Apollo-like approach is followed or if multi-level pages, ie children pages, are implemented).
-* Avoid the network for local queries: on the examples we have being doing a `fetch` to `localhost`, but this is rather inefficient. [Apollo GraphQL has a section about how to do this](https://www.apollographql.com/docs/react/features/server-side-rendering#local-queries), but in the practice is rather hard to implement it.  
+* Avoid the network for local queries: on the examples we have being doing a `fetch` to `localhost`, but this is rather inefficient. [Apollo GraphQL has a section about how to do this](https://www.apollographql.com/docs/react/features/server-side-rendering#local-queries), but in the practice is rather hard to implement it.
 
 ***
 
