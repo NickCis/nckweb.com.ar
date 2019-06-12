@@ -36,7 +36,7 @@ function Bio() {
               }}
             >
               Personal thoughs by <a href={`https://twitter.com/${social.twitter}`}>{author}</a>.
-              Mainly programming realted stuff.
+              Mainly programming related stuff.
             </p>
           </div>
         )

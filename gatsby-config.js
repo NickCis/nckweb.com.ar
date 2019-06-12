@@ -2,7 +2,7 @@ module.exports = {
   siteMetadata: {
     title: `Nckweb`,
     author: `Nicolas Cisco`,
-    description: `Just my thoughts about the stuff i do. Mainly programming realted stuff.`,
+    description: `Just my thoughts about the stuff i do. Mainly programming related stuff.`,
     siteUrl: `https://nckweb.com.ar/`,
     social: {
       twitter: `nickcis`,
