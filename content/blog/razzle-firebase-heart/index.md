@@ -15,7 +15,7 @@ Checking out examples I've found one called [_Firebase functions_](https://githu
 
 **\[\[\[ INSERT IMAGE OF EXAMPLES \]\]\]**
 
-It isn't my objective to take credit from the contributor who submitted that example, but, I've found out that the developer experience wasn't as good as I've expected. Some points I in which that example could be improved:
+It isn't my objective to take credit away from the contributor who submitted that example, but, I've found out that the developer experience wasn't as good as I've expected. Some points I in which that example could be improved:
 
 * Firebase [quick start](https://firebase.google.com/docs/functions/get-started) and [examples](https://github.com/firebase/functions-samples) follow the convention of using a sub package (in a folder named _functions_) for firebase functions, instead of using the same package for hosting, functions, database, etc.
 * While developing, I would like to use native firebase emulator, instead of spinning up an express server.
