@@ -20,4 +20,4 @@ It isn't my objective to take credit from the contributor who submitted that exa
 * Firebase [quick start](https://firebase.google.com/docs/functions/get-started) and [examples](https://github.com/firebase/functions-samples) follow the convention of using a sub package (in a folder named _functions_) for firebase functions, instead of using the same package for hosting, functions, database, etc.
 * While developing, I would like to use native firebase emulator, instead of spinning up an express server.
 * Support source maps in order to have better error's traces in development
-* I would prefer defining firebase functions in a more explicit way, instead of having the index file outside of the src directory.
+* I would prefer defining firebase functions in a more explicit way, instead of having the [index file](https://github.com/jaredpalmer/razzle/blob/master/examples/with-firebase-functions/index.js) outside of the src directory.
